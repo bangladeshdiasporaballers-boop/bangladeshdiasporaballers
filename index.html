@@ -60,192 +60,172 @@
         </div>
     </header>
 
+    <!-- Main Dynamic Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- PUBLIC VIEW -->
         <div id="publicView" class="space-y-8">
             <div class="glass-panel p-8 sm:p-12 rounded-3xl text-center relative overflow-hidden glow-green">
-                <div class="absolute -right-20 -top-20 w-64 h-64 bg-brandgreen/10 rounded-full blur-3xl pointer-events-none"></div>
-                <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight mb-4" data-en="BDB Scouting & Performance Hub" data-bn="বিডিবি স্কাউটিং ও পারফরম্যান্স হাব">BDB Scouting & Performance Hub</h1>
-                <p class="text-zinc-400 max-w-2xl mx-auto text-base sm:text-lg mb-8" data-en="Empowering Bangladeshi diaspora footballers worldwide. Submit match reports, stats, and connect with official scouts." data-bn="বিশ্বজুড়ে বাংলাদেশি প্রবাসী ফুটবলারদের প্রতিভা অন্বেষণ ও পারফরম্যান্স ট্র্যাকিং প্ল্যাটফর্ম।">Empowering Bangladeshi diaspora footballers worldwide. Submit match reports, stats, and connect with official scouts.</p>
-                <div class="flex flex-wrap justify-center gap-4">
-                    <button onclick="openLoginModal()" class="px-6 py-3 rounded-xl bg-brandgreen text-black font-bold hover:bg-branddarkgreen transition shadow-lg flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
-                        <span data-en="Login to Member Portal" data-bn="মেম্বার পোর্টালে লগইন করুন">Login to Member Portal</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="glass-panel p-6 rounded-2xl border border-borderdark">
-                    <div class="w-10 h-10 rounded-lg bg-brandgreen/10 text-brandgreen flex items-center justify-center font-bold mb-4">01</div>
-                    <h3 class="text-lg font-bold text-white mb-2" data-en="Scout Network" data-bn="স্কাউট নেটওয়ার্ক">Scout Network</h3>
-                    <p class="text-sm text-zinc-400" data-en="Verified scouts submit regional match data and player performance metrics directly to the central repository." data-bn="যাচাইকৃত স্কাউটগণ আঞ্চলিক ম্যাচের তথ্য ও খেলোয়াড়দের পারফরম্যান্স মেট্রিকস সেন্ট্রাল ডাটাবেসে জমা দেন।">Verified scouts submit regional match data and player performance metrics directly to the central repository.</p>
-                </div>
-                <div class="glass-panel p-6 rounded-2xl border border-borderdark">
-                    <div class="w-10 h-10 rounded-lg bg-brandgreen/10 text-brandgreen flex items-center justify-center font-bold mb-4">02</div>
-                    <h3 class="text-lg font-bold text-white mb-2" data-en="Diaspora Ballers" data-bn="ডায়াসপোরা বলার্স">Diaspora Ballers</h3>
-                    <p class="text-sm text-zinc-400" data-en="Players update their weekly goals, assists, and match footage for national selection review." data-bn="খেলোয়াড়রা তাদের সাপ্তাহিক গোল, অ্যাসিস্ট এবং ম্যাচের ফুটেজ জাতীয় দলের পর্যালোচনার জন্য আপডেট করেন।">Players update their weekly goals, assists, and match footage for national selection review.</p>
-                </div>
-                <div class="glass-panel p-6 rounded-2xl border border-borderdark">
-                    <div class="w-10 h-10 rounded-lg bg-brandgreen/10 text-brandgreen flex items-center justify-center font-bold mb-4">03</div>
-                    <h3 class="text-lg font-bold text-white mb-2" data-en="Secure & Verified" data-bn="নিরাপদ ও পরীক্ষিত">Secure & Verified</h3>
-                    <p class="text-sm text-zinc-400" data-en="All entries undergo strict administrative verification before entering the official database." data-bn="অফিসিয়াল ডাটাবেসে যুক্ত হওয়ার আগে প্রতিটি তথ্য কঠোর প্রশাসনিক যাচাইয়ের মধ্য দিয়ে যায়।">All entries undergo strict administrative verification before entering the official database.</p>
-                </div>
+                <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight mb-4" data-en="BDB Scouting & Performance Hub" data-bn="বিডিবি স্কাউটিং ও পারফরম্যান্স হাব">
+                    BDB Scouting & Performance Hub
+                </h1>
+                <p class="text-zinc-400 max-w-2xl mx-auto text-base sm:text-lg mb-8" data-en="Empowering Bangladeshi diaspora footballers worldwide. Submit match reports, stats, and connect with official scouts." data-bn="বিশ্বজুড়ে বাংলাদেশি প্রবাসী ফুটবলারদের প্রতিভা অন্বেষণ ও পারফরম্যান্স ট্র্যাকিং প্ল্যাটফর্ম।">
+                    Empowering Bangladeshi diaspora footballers worldwide. Submit match reports, stats, and connect with official scouts.
+                </p>
+                <button onclick="openLoginModal()" class="px-6 py-3 rounded-xl bg-brandgreen text-black font-bold hover:bg-branddarkgreen transition shadow-lg inline-flex items-center gap-2">
+                    <span data-en="Login to Member Portal" data-bn="মেম্বার পোর্টালে লগইন করুন">Login to Member Portal</span>
+                </button>
             </div>
         </div>
 
+        <!-- MEMBER / SCOUT DASHBOARD -->
         <div id="memberDashboard" class="hidden space-y-6">
-            <div class="glass-panel p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-borderdark">
+            <div class="glass-panel p-6 rounded-2xl flex justify-between items-center border border-borderdark">
                 <div>
-                    <span id="welcomeUserRole" class="text-xs uppercase px-2.5 py-1 rounded-full bg-brandgreen/10 text-brandgreen font-bold border border-brandgreen/20">SCOUT PORTAL</span>
-                    <h2 class="text-2xl font-bold text-white mt-2" data-en="Welcome to Your Dashboard" data-bn="আপনার ড্যাশবোর্ডে স্বাগতম">Welcome to Your Dashboard</h2>
-                    <p class="text-sm text-zinc-400" data-en="Submit daily match results and performance data below." data-bn="নিচে প্রতিদিনের ম্যাচের ফলাফল ও পারফরম্যান্স ডাটা জমা দিন।">Submit daily match results and performance data below.</p>
+                    <span id="welcomeUserRole" class="text-xs uppercase px-2.5 py-1 rounded-full bg-brandgreen/10 text-brandgreen font-bold border border-brandgreen/20">PORTAL</span>
+                    <h2 class="text-2xl font-bold text-white mt-2" data-en="Submit Match Report" data-bn="ম্যাচ রিপোর্ট জমা দিন">Submit Match Report</h2>
                 </div>
-                <button onclick="logout()" class="px-4 py-2 rounded-xl bg-zinc-800 text-zinc-300 hover:text-white border border-borderdark text-sm font-semibold transition"><span data-en="Logout" data-bn="লগআউট">Logout</span></button>
+                <button onclick="logout()" class="px-4 py-2 rounded-xl bg-zinc-800 text-zinc-300 hover:text-white border border-borderdark text-sm font-semibold transition" data-en="Logout" data-bn="লগআউট">Logout</button>
             </div>
 
             <div class="glass-panel p-6 sm:p-8 rounded-2xl border border-borderdark">
-                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-brandgreen" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    <span data-en="Submit Match Report / Player Stat" data-bn="ম্যাচ রিপোর্ট বা প্লেয়ার স্ট্যাট জমা দিন">Submit Match Report / Player Stat</span>
-                </h3>
                 <form id="reportForm" onsubmit="handleReportSubmit(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-zinc-400 mb-1" data-en="Player / Team Name" data-bn="খেলোয়াড় বা দলের নাম">Player / Team Name</label>
-                        <input type="text" id="reportName" required placeholder="e.g. Tariq Kazi / London FC" class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-borderdark text-white text-sm focus:border-brandgreen focus:outline-none">
+                        <input type="text" id="reportName" required placeholder="e.g. Tariq Kazi" class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-borderdark text-white text-sm focus:border-brandgreen focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-zinc-400 mb-1" data-en="Match Date & League" data-bn="ম্যাচের তারিখ ও লিগ">Match Date & League</label>
-                        <input type="text" id="reportDetails" required placeholder="e.g. Nov 16 - UK Regional League" class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-borderdark text-white text-sm focus:border-brandgreen focus:outline-none">
+                        <input type="text" id="reportDetails" required placeholder="e.g. UK Regional League" class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-borderdark text-white text-sm focus:border-brandgreen focus:outline-none">
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="block text-xs font-semibold text-zinc-400 mb-1" data-en="Performance Summary (Goals, Assists, Rating)" data-bn="পারফরম্যান্স সারাংশ (গোল, অ্যাসিস্ট, রেটিং)">Performance Summary (Goals, Assists, Rating)</label>
-                        <textarea id="reportSummary" rows="3" required placeholder="e.g. Scored 1 goal, 1 assist, clean sheet maintained." class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-borderdark text-white text-sm focus:border-brandgreen focus:outline-none"></textarea>
+                        <label class="block text-xs font-semibold text-zinc-400 mb-1" data-en="Performance Summary" data-bn="পারফরম্যান্স সারাংশ">Performance Summary</label>
+                        <textarea id="reportSummary" rows="3" required placeholder="Goals, Assists, Rating..." class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-borderdark text-white text-sm focus:border-brandgreen focus:outline-none"></textarea>
                     </div>
-                    <div><button type="submit" class="px-6 py-2.5 rounded-xl bg-brandgreen text-black font-bold text-sm hover:bg-branddarkgreen transition shadow-lg" data-en="Submit to Cloud" data-bn="ক্লাউডে সাবমিট করুন">Submit to Cloud</button></div>
+                    <div>
+                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-brandgreen text-black font-bold text-sm hover:bg-branddarkgreen transition shadow-lg" data-en="Submit to Cloud" data-bn="ক্লাউডে সাবমিট করুন">Submit to Cloud</button>
+                    </div>
                 </form>
             </div>
         </div>
 
+        <!-- ADMIN DASHBOARD (Protected by PIN 1234) -->
         <div id="adminDashboard" class="hidden space-y-6">
             <div class="glass-panel p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-emerald-500/30 bg-emerald-950/10">
                 <div>
                     <span class="text-xs uppercase px-2.5 py-1 rounded-full bg-brandgreen text-black font-extrabold">ADMINISTRATIVE MASTER ACCESS</span>
-                    <h2 class="text-2xl font-bold text-white mt-2" data-en="Complete Database & Live Feed" data-bn="পূর্ণাঙ্গ ডাটাবেস ও লাইভ ফিড">Complete Database & Live Feed</h2>
-                    <p class="text-sm text-zinc-400" data-en="Confidential administrative controls and verified diaspora player records." data-bn="গোপনীয় প্রশাসনিক কন্ট্রোল এবং যাচাইকৃত প্রবাসী খেলোয়াড়দের রেকর্ড।">Confidential administrative controls and verified diaspora player records.</p>
+                    <h2 class="text-2xl font-bold text-white mt-2" data-en="Complete Database & Player Profiles" data-bn="পূর্ণাঙ্গ ডাটাবেস ও খেলোয়াড়দের প্রোফাইল">Complete Database & Player Profiles</h2>
                 </div>
-                <button onclick="logout()" class="px-4 py-2 rounded-xl bg-zinc-800 text-zinc-300 hover:text-white border border-borderdark text-sm font-semibold transition"><span data-en="Lock Admin Session" data-bn="অ্যাডমিন সেশন লক করুন">Lock Admin Session</span></button>
+                <button onclick="logout()" class="px-4 py-2 rounded-xl bg-zinc-800 text-zinc-300 hover:text-white border border-borderdark text-sm font-semibold transition" data-en="Lock Admin Session" data-bn="অ্যাডমিন সেশন লক করুন">Lock Admin Session</button>
             </div>
 
+            <!-- Stats Overview -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="glass-panel p-5 rounded-2xl border border-borderdark"><p class="text-xs text-zinc-400 uppercase font-semibold" data-en="Total Database Players" data-bn="মোট ডাটাবেস প্লেয়ার">Total Database Players</p><h3 class="text-3xl font-extrabold text-brandgreen mt-1">42</h3></div>
-                <div class="glass-panel p-5 rounded-2xl border border-borderdark"><p class="text-xs text-zinc-400 uppercase font-semibold" data-en="Pending Submissions" data-bn="পেন্ডিং সাবমিশন">Pending Submissions</p><h3 id="pendingCount" class="text-3xl font-extrabold text-amber-400 mt-1">3</h3></div>
-                <div class="glass-panel p-5 rounded-2xl border border-borderdark"><p class="text-xs text-zinc-400 uppercase font-semibold" data-en="System Security" data-bn="সিস্টেম সিকিউরিটি">System Security</p><h3 class="text-3xl font-extrabold text-white mt-1">SECURE (PIN)</h3></div>
+                <div class="glass-panel p-5 rounded-2xl border border-borderdark">
+                    <p class="text-xs text-zinc-400 uppercase font-semibold" data-en="Total Database Players" data-bn="মোট ডাটাবেস প্লেয়ার">Total Database Players</p>
+                    <h3 class="text-3xl font-extrabold text-brandgreen mt-1">42</h3>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl border border-borderdark">
+                    <p class="text-xs text-zinc-400 uppercase font-semibold" data-en="Pending Submissions" data-bn="পেন্ডিং সাবমিশন">Pending Submissions</p>
+                    <h3 id="pendingCount" class="text-3xl font-extrabold text-amber-400 mt-1">3</h3>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl border border-borderdark">
+                    <p class="text-xs text-zinc-400 uppercase font-semibold" data-en="System Security" data-bn="সিস্টেম সিকিউরিটি">System Security</p>
+                    <h3 class="text-3xl font-extrabold text-white mt-1">SECURE (PIN)</h3>
+                </div>
             </div>
 
+            <!-- Verified Player Profiles Database Section (Clickable) -->
+            <div class="glass-panel p-6 rounded-2xl border border-borderdark">
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center justify-between">
+                    <span data-en="Verified Diaspora Player Profiles (Click to View)" data-bn="যাচাইকৃত প্রবাসী খেলোয়াড়দের প্রোফাইল (বিস্তারিত দেখতে ক্লিক করুন)">Verified Diaspora Player Profiles (Click to View)</span>
+                    <span class="text-xs px-2.5 py-1 rounded bg-brandgreen/10 text-brandgreen border border-brandgreen/20">42 Profiles Active</span>
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="playerProfilesGrid">
+
+                    <!-- Player Card 1 -->
+                    <div onclick="openPlayerProfile('Hamza Choudhury', 'Defensive Midfield', 'Leicester City / UK', '8.4 / 10', '28', 'Born in England, Premier League experience, elite interception stats and high work-rate.')" class="bg-zinc-900/80 border border-borderdark hover:border-brandgreen transition cursor-pointer p-4 rounded-xl relative group">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-bold text-white group-hover:text-brandgreen transition">Hamza Choudhury</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-emerald-950 text-brandgreen border border-emerald-800">Verified</span>
+                        </div>
+                        <p class="text-xs text-zinc-400">Position: Defensive Midfield</p>
+                        <p class="text-xs text-zinc-400">Club / Region: Leicester City / UK</p>
+                        <div class="flex justify-between items-center mt-3 pt-2 border-t border-zinc-800">
+                            <span class="text-xs text-brandgreen font-bold">Rating: 8.4 / 10</span>
+                            <span class="text-xs text-zinc-400 underline">View Profile &rarr;</span>
+                        </div>
+                    </div>
+
+                    <!-- Player Card 2 -->
+                    <div onclick="openPlayerProfile('Tariq Kazi', 'Right Back / Centre Back', 'Bashundhara Kings / Finland', '8.1 / 10', '25', 'Versatile defender with European league background, solid aerial duels and tactical intelligence.')" class="bg-zinc-900/80 border border-borderdark hover:border-brandgreen transition cursor-pointer p-4 rounded-xl relative group">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-bold text-white group-hover:text-brandgreen transition">Tariq Kazi</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-emerald-950 text-brandgreen border border-emerald-800">Verified</span>
+                        </div>
+                        <p class="text-xs text-zinc-400">Position: Right Back / CB</p>
+                        <p class="text-xs text-zinc-400">Club / Region: Finland Diaspora / Bangladesh</p>
+                        <div class="flex justify-between items-center mt-3 pt-2 border-t border-zinc-800">
+                            <span class="text-xs text-brandgreen font-bold">Rating: 8.1 / 10</span>
+                            <span class="text-xs text-zinc-400 underline">View Profile &rarr;</span>
+                        </div>
+                    </div>
+
+                    <!-- Player Card 3 -->
+                    <div onclick="openPlayerProfile('Yasin Khan', 'Forward / Winger', 'Italy Regional League', '7.9 / 10', '24', 'Explosive pace, lethal finishing inside the box, strong dribbling capabilities in tight spaces.')" class="bg-zinc-900/80 border border-borderdark hover:border-brandgreen transition cursor-pointer p-4 rounded-xl relative group">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-bold text-white group-hover:text-brandgreen transition">Yasin Khan</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-emerald-950 text-brandgreen border border-emerald-800">Verified</span>
+                        </div>
+                        <p class="text-xs text-zinc-400">Position: Forward / Winger</p>
+                        <p class="text-xs text-zinc-400">Club / Region: Italy Regional League</p>
+                        <div class="flex justify-between items-center mt-3 pt-2 border-t border-zinc-800">
+                            <span class="text-xs text-brandgreen font-bold">Rating: 7.9 / 10</span>
+                            <span class="text-xs text-zinc-400 underline">View Profile &rarr;</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Live Submissions Table -->
             <div class="glass-panel p-6 rounded-2xl border border-borderdark overflow-hidden">
-                <h3 class="text-lg font-bold text-white mb-4" data-en="Live Scout & Player Submissions" data-bn="লাইভ স্কাউট ও প্লেয়ার সাবমিশন">Live Scout & Player Submissions</h3>
+                <h3 class="text-lg font-bold text-white mb-4" data-en="Live Scout & Player Submissions Feed" data-bn="লাইভ স্কাউট ও প্লেয়ার সাবমিশন ফিড">Live Scout & Player Submissions Feed</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-zinc-300">
-                        <thead class="bg-zinc-900 text-zinc-400 uppercase text-xs border-b border-borderdark"><tr><th class="p-3" data-en="Submitter / Player" data-bn="সাবমিটার / প্লেয়ার">Submitter / Player</th><th class="p-3" data-en="Details & League" data-bn="বিস্তারিত ও লিগ">Details & League</th><th class="p-3" data-en="Performance Summary" data-bn="পারফরম্যান্স সারাংশ">Performance Summary</th><th class="p-3" data-en="Action" data-bn="অ্যাকশন">Action</th></tr></thead>
+                        <thead class="bg-zinc-900 text-zinc-400 uppercase text-xs border-b border-borderdark">
+                            <tr>
+                                <th class="p-3">Submitter / Player</th>
+                                <th class="p-3">Details & League</th>
+                                <th class="p-3">Performance Summary</th>
+                                <th class="p-3">Action</th>
+                            </tr>
+                        </thead>
                         <tbody id="adminTableBody" class="divide-y divide-borderdark">
-                            <tr><td class="p-3 font-semibold text-white">Hamza Choudhury (Scout)</td><td class="p-3 text-zinc-400">Nov 15 - Championship</td><td class="p-3">90 mins played, 88% pass accuracy.</td><td class="p-3"><span class="px-2 py-1 bg-emerald-950 text-brandgreen rounded text-xs border border-emerald-800">Verified</span></td></tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-white">Zidan Ahmed (Scout)</td>
+                                <td class="p-3 text-zinc-400">Nov 16 - Italy U-19 League</td>
+                                <td class="p-3">Scored winning goal, 90 mins active.</td>
+                                <td class="p-3"><span class="px-2 py-1 bg-amber-950 text-amber-400 rounded text-xs border border-amber-800">Pending Review</span></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
+
     </main>
 
-    <div id="loginModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="glass-panel max-w-md w-full p-6 sm:p-8 rounded-3xl border border-borderdark relative">
-            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            <h3 class="text-xl font-bold text-white mb-2" data-en="Portal Login" data-bn="পোর্টাল লগইন">Portal Login</h3>
-            <p class="text-xs text-zinc-400 mb-6" data-en="Select your role or enter the 4-digit admin PIN for master database access." data-bn="আপনার রোল নির্বাচন করুন অথবা অ্যাডমিন পিন দিয়ে মাস্টার ডাটাবেসে প্রবেশ করুন।">Select your role or enter the 4-digit admin PIN for master database access.</p>
-            <form onsubmit="handleLogin(event)" class="space-y-4">
-                <div><label class="block text-xs font-semibold text-zinc-400 mb-1" data-en="Select Role" data-bn="রোল নির্বাচন করুন">Select Role</label><select id="loginRole" class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-borderdark text-white text-sm focus:border-brandgreen focus:outline-none"><option value="scout">Scout (স্কাউট)</option><option value="player">Player / Agent (খেলোয়াড় / এজেন্ট)</option><option value="fan">Fan / Supporter (সমর্থক)</option><option value="admin">Admin (অ্যাডমিন - PIN Required)</option></select></div>
-                <div><label class="block text-xs font-semibold text-zinc-400 mb-1" data-en="Admin PIN / Passcode (Optional for normal users)" data-bn="অ্যাডমিন পিন / পাসকোড (সাধারণ ইউজারদের জন্য ঐচ্ছিক)">Admin PIN / Passcode</label><input type="password" id="loginPin" placeholder="Enter 4-digit PIN for Admin" class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-borderdark text-white text-sm focus:border-brandgreen focus:outline-none"></div>
-                <button type="submit" class="w-full py-3 rounded-xl bg-brandgreen text-black font-bold text-sm hover:bg-branddarkgreen transition shadow-lg" data-en="Continue to Dashboard" data-bn="ড্যাশবোর্ডে প্রবেশ করুন">Continue to Dashboard</button>
-            </form>
-        </div>
-    </div>
+    <!-- Player Profile Detail Modal -->
+    <div id="playerProfileModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-lg w-full p-6 sm:p-8 rounded-3xl border border-borderdark relative">
+            <button onclick="closePlayerProfile()" class="absolute top-4 right-4 text-zinc-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
 
-    <footer class="glass-panel border-t border-borderdark py-6 mt-auto text-center text-xs text-zinc-500">&copy; 2026 BDB (Bangladesh Diaspora Ballers). All rights reserved.</footer>
-
-    <script>
-        let currentLang = 'en';
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'bn' : 'en';
-            document.querySelectorAll('[data-en]').forEach(el => {
-                el.innerText = el.getAttribute(`data-${currentLang}`);
-            });
-            document.getElementById('langBtnText').innerText = currentLang === 'en' ? 'EN / বাংলা' : 'বাংলা / EN';
-        }
-
-        function openLoginModal() { document.getElementById('loginModal').classList.remove('hidden'); }
-        function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
-
-        function handleLogin(event) {
-            event.preventDefault();
-            const role = document.getElementById('loginRole').value;
-            const pin = document.getElementById('loginPin').value;
-            closeLoginModal();
-
-            if (role === 'admin' || pin === '1234') {
-                if (pin !== '1234' && role === 'admin') {
-                    alert('ভুল পিন! সঠিক অ্যাডমিন পিন (1234) দিন। / Incorrect Admin PIN!');
-                    return;
-                }
-                if (pin === '1234') { showAdminDashboard(); return; }
-            }
-            showMemberDashboard(role);
-        }
-
-        function showAdminDashboard() {
-            document.getElementById('publicView').classList.add('hidden');
-            document.getElementById('memberDashboard').classList.add('hidden');
-            document.getElementById('adminDashboard').classList.remove('hidden');
-            document.getElementById('navRoleBadge').innerText = 'ADMIN';
-            document.getElementById('navRoleBadge').className = 'text-xs px-2 py-0.5 rounded bg-brandgreen text-black font-extrabold';
-        }
-
-        function showMemberDashboard(role) {
-            document.getElementById('publicView').classList.add('hidden');
-            document.getElementById('adminDashboard').classList.add('hidden');
-            document.getElementById('memberDashboard').classList.remove('hidden');
-            document.getElementById('welcomeUserRole').innerText = `${role.toUpperCase()} PORTAL`;
-            document.getElementById('navRoleBadge').innerText = role.toUpperCase();
-            document.getElementById('navRoleBadge').className = 'text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30';
-        }
-
-        function logout() {
-            document.getElementById('adminDashboard').classList.add('hidden');
-            document.getElementById('memberDashboard').classList.add('hidden');
-            document.getElementById('publicView').classList.remove('hidden');
-            document.getElementById('navRoleBadge').innerText = 'PUBLIC';
-            document.getElementById('navRoleBadge').className = 'text-xs px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700';
-            document.getElementById('loginPin').value = '';
-        }
-
-        function resetApp() { logout(); }
-
-        function handleReportSubmit(event) {
-            event.preventDefault();
-            const name = document.getElementById('reportName').value;
-            const details = document.getElementById('reportDetails').value;
-            const summary = document.getElementById('reportSummary').value;
-            const tableBody = document.getElementById('adminTableBody');
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td class="p-3 font-semibold text-white">${name} (Pending)</td>
-                <td class="p-3 text-zinc-400">${details}</td>
-                <td class="p-3">${summary}</td>
-                <td class="p-3"><span class="px-2 py-1 bg-amber-950 text-amber-400 rounded text-xs border border-amber-800">Pending Review</span></td>
-            `;
-            tableBody.prepend(newRow);
-            alert('আপনার রিপোর্ট সফলভাবে ক্লাউডে সাবমিট হয়েছে! অ্যাডমিন যাচাই করার পর এটি মূল ডাটাবেসে যুক্ত হবে।');
-            document.getElementById('reportForm').reset();
-        }
-    </script>
-</body>
-</html>
+            <div class="flex items-center space-x-4 mb-6">
+                <div class="w-16 h-16 rounded-2xl bg-brandgreen/10 border border-brandgreen/30 flex items-center justify-center text-brandgreen font-extrabold text-2xl" id="modalPlayerInitials">
+                    HK
+                </div>
+                <div>
+                    <h3 class="text-2xl font
