@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08090b">
+  <meta name="description" content="Bangladesh Diaspora Ballers — connecting footballers of Bangladeshi heritage with clubs, scouts and opportunities around the world.">
+  <title>BDB — Bangladesh Diaspora Ballers</title>
+  <link rel="stylesheet" href="./assets/style.css">
+  <script src="./assets/app.js" defer></script>
+</head>
+<body>
+  <div class="announcement"><span class="live-dot"></span> INDEPENDENT GLOBAL FOOTBALL TALENT NETWORK</div>
+  <header class="site-header">
+    <a class="brand" href="#home" aria-label="BDB home">
+      <span class="brand-mark">BDB<span>.</span></span>
+      <span class="brand-name">BANGLADESH<br>DIASPORA BALLERS</span>
+    </a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+    <nav class="nav" id="mainNav">
+      <a href="#players" data-en="Players" data-bn="খেলোয়াড়">Players</a>
+      <a href="#about" data-en="About" data-bn="আমাদের সম্পর্কে">About</a>
+      <a href="#submit" data-en="Submit a Player" data-bn="খেলোয়াড় জমা দিন">Submit a Player</a>
+      <a href="#contact" data-en="Contact" data-bn="যোগাযোগ">Contact</a>
+      <button class="language-btn" id="languageToggle" type="button">বাংলা</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="hero-copy">
+        <p class="eyebrow">BANGLADESH TO THE WORLD <span>／</span> FOOTBALL WITHOUT BORDERS</p>
+        <h1>The world is full of talent.<br><em>Let’s find ours.</em></h1>
+        <p class="hero-lead" data-en="Connecting footballers of Bangladeshi heritage with clubs, scouts and opportunities around the world." data-bn="বাংলাদেশি বংশোদ্ভূত ফুটবলারদের বিশ্বের বিভিন্ন ক্লাব, স্কাউট ও সুযোগের সঙ্গে যুক্ত করা।">Connecting footballers of Bangladeshi heritage with clubs, scouts and opportunities around the world.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#players" data-en="Explore players" data-bn="খেলোয়াড় দেখুন">Explore players <span>↗</span></a>
+          <a class="btn btn-outline" href="#submit" data-en="Submit a player" data-bn="খেলোয়াড় জমা দিন">Submit a player</a>
+        </div>
+        <div class="hero-footnote"><span class="line"></span> IDENTIFY · CONNECT · DEVELOP</div>
+      </div>
+      <div class="hero-art" aria-label="Abstract football graphic">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="football">BDB</div>
+        <div class="art-label label-top">GLOBAL<br>NETWORK</div>
+        <div class="art-label label-bottom">ONE HERITAGE<br>MANY PATHWAYS</div>
+        <div class="art-number">01<span>/</span>WORLD</div>
+      </div>
+    </section>
+
+    <section class="stats-strip" aria-label="Network focus">
+      <div><strong>GLOBAL</strong><span>Network</span></div>
+      <div><strong>ALL AGES</strong><span>Player pathways</span></div>
+      <div><strong>ONE</strong><span>Shared heritage</span></div>
+      <div><strong>FOOTBALL</strong><span>Without borders</span></div>
+    </section>
+
+    <section class="section players-section" id="players">
+      <div class="section-heading">
+        <div><p class="eyebrow">BDB DATABASE / 01</p><h2>Player <em>Spotlight</em></h2></div>
+        <p class="section-intro" data-en="Discover footballers in our public showcase." data-bn="আমাদের পাবলিক শোকেসে ফুটবলারদের খুঁজে দেখুন।">Discover footballers in our public showcase.</p>
+      </div>
+      <div class="filter-bar">
+        <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search name, club or country" aria-label="Search players"></label>
+        <select id="positionFilter" aria-label="Filter by position"><option value="">All positions</option><option>GK</option><option>CB</option><option>RB</option><option>LB</option><option>CDM</option><option>CM</option><option>CAM</option><option>RW</option><option>LW</option><option>ST</option></select>
+        <select id="countryFilter" aria-label="Filter by country"><option value="">All countries</option></select>
+      </div>
+      <div class="player-grid" id="playerGrid">
+        <article class="player-card">
+          <div class="player-photo photo-one"><span>PLAYER<br>SPOTLIGHT</span><b>01</b></div>
+          <div class="player-info"><div class="player-meta"><span>UNITED KINGDOM</span><span>U16</span></div><h3>Zain Rahman</h3><p>Walthamstow FC · CM / CAM / CDM</p><a href="mailto:bangladeshdiasporaballers@gmail.com?subject=Player%20profile%20enquiry%20-%20Zain%20Rahman">Profile enquiry <span>↗</span></a></div>
+        </article>
+        <article class="player-card">
+          <div class="player-photo photo-two"><span>PLAYER<br>SPOTLIGHT</span><b>02</b></div>
+          <div class="player-info"><div class="player-meta"><span>CANADA</span><span>U16</span></div><h3>Amanul Hoque (Mahdi)</h3><p>Canada First Academy · LW / ST / RW</p><a href="mailto:bangladeshdiasporaballers@gmail.com?subject=Player%20profile%20enquiry%20-%20Amanul%20Hoque">Profile enquiry <span>↗</span></a></div>
+        </article>
+        <div class="empty-state" id="emptyState" hidden>No players match your search.</div>
+      </div>
+      <p class="data-note">Player information is displayed for scouting and networking purposes. Profiles are published with appropriate permission.</p>
+    </section>
+
+    <section class="about-section section" id="about">
+      <div class="about-number">02 <span>/ ABOUT BDB</span></div>
+      <div class="about-content"><p class="eyebrow">OUR MISSION</p><h2>Heritage is our connection.<br><em>Talent is our focus.</em></h2><p>Bangladesh Diaspora Ballers is an independent talent-identification initiative highlighting footballers of Bangladeshi heritage around the world. We aim to help players become more visible to clubs, scouts and the wider football community.</p></div>
+      <div class="about-side"><span class="side-mark">B</span><p>DISCOVER<br>THE NEXT<br>GENERATION.</p></div>
+    </section>
+
+    <section class="submit-section section" id="submit">
+      <div><p class="eyebrow">JOIN THE NETWORK / 03</p><h2>Know a player?<br><em>Tell us about them.</em></h2><p class="section-intro">Submit a player for consideration in the BDB public showcase.</p></div>
+      <form class="submit-form" id="playerForm">
+        <label>Player name<input name="playerName" required placeholder="Full name"></label>
+        <div class="form-row"><label>Age<input name="age" type="number" min="1" max="99" required placeholder="Age"></label><label>Country<input name="country" required placeholder="Country"></label></div>
+        <label>Club / Academy<input name="club" placeholder="Current club or academy"></label>
+        <label>Position<input name="position" required placeholder="e.g. CM / ST"></label>
+        <label>Profile / Highlight video URL<input name="url" type="url" placeholder="https://..."></label>
+        <label>Your email<input name="email" type="email" required placeholder="you@example.com"></label>
+        <button class="btn btn-primary submit-btn" type="submit">Prepare submission <span>↗</span></button>
+        <p class="form-note">This GitHub Pages version opens your email app to send the submission. It does not store entries in an online database.</p>
+        <p class="form-status" id="formStatus" role="status"></p>
+      </form>
+    </section>
+
+    <section class="contact-section" id="contact"><p class="eyebrow">LET’S CONNECT</p><h2>Football has no borders.</h2><a class="contact-email" href="mailto:bangladeshdiasporaballers@gmail.com">bangladeshdiasporaballers@gmail.com ↗</a><p>Bangladesh Diaspora Ballers · Independent global scouting network</p></section>
+  </main>
+  <footer><a class="footer-brand" href="#home">BDB<span>.</span></a><span>© <span id="year"></span> Bangladesh Diaspora Ballers</span><a href="#home">BACK TO TOP ↑</a></footer>
+</body>
+</html>
