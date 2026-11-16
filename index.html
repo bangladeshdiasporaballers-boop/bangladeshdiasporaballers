@@ -1,0 +1,1659 @@
+<!-- Chosen Palette: Void Black & Emerald Pitch (Dark Obsidian #09090b, Void #000000, BDB Emerald #00e676, Crimson Accent #ff1744) -->
+<!-- Application Structure Plan: Role-gated Single Page Application (SPA). Public/Member Login Gate first to protect scouting data, expanding into a Role-Based Personal Dashboard (Scout/Player/Fan) for daily match submissions or a Full Admin Scouting Hub (Database, 4-3-3 Tactical Lineup Builder, and Head-to-Head Radar Comparison) upon Admin PIN verification. Designed for rapid mobile and desktop scouting workflows. -->
+<!-- Visualization & Content Choices: Player Attributes -> Goal: Compare/Inform -> Radar Chart (Chart.js Canvas) & Head-to-Head Progress Bars -> Interactive player modal & dropdown comparison -> Clear multi-axis skill profiling -> Chart.js Canvas. Tactical Squad -> Goal: Organize -> Interactive 4-3-3 Pitch Grid -> Click-to-assign slot selector -> Intuitive lineup visualization -> HTML/CSS Grid. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+<!DOCTYPE html>
+<html lang="bn" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BDB | Bangladesh Diaspora Ballers - Scouting Network</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Hind Siliguri', 'sans-serif'],
+                        bengali: ['Hind Siliguri', 'sans-serif'],
+                    },
+                    colors: {
+                        void: '#000000',
+                        obsidian: '#09090b',
+                        carbon: '#121215',
+                        borderDark: '#222226',
+                        bdbGreen: '#00e676',
+                        bdbRed: '#ff1744',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #000000; color: #f4f4f5; -webkit-tap-highlight-color: transparent; }
+        button, select, input, textarea { touch-action: manipulation; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #000000; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00e676; }
+        .pitch-bg {
+            background: radial-gradient(circle at center, #0a2e1a 0%, #05140c 100%);
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px),
+                radial-gradient(circle at center, #072414 0%, #020a05 100%);
+            background-size: 40px 40px, 40px 40px, 100% 100%;
+        }
+        .glass-black {
+            background: rgba(9, 9, 11, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 340px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 240px;
+            max-height: 260px;
+        }
+    </style>
+</head>
+<body class="bg-void text-zinc-100 font-bengali antialiased selection:bg-bdbGreen selection:text-black overflow-x-hidden">
+
+    <nav class="sticky top-0 z-40 glass-black border-b border-borderDark">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('database')">
+                    <div class="relative w-10 h-10 rounded-xl bg-carbon border border-zinc-800 flex items-center justify-center shadow-[0_0_15px_rgba(0,230,118,0.2)]">
+                        <span class="font-sans font-black text-base tracking-tighter text-bdbGreen">BDB</span>
+                        <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-bdbRed border-2 border-black"></span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-sans font-black text-lg tracking-wider text-white">BDB</span>
+                            <span class="text-[10px] font-sans font-bold uppercase px-1.5 py-0.5 rounded bg-zinc-900 text-bdbGreen border border-bdbGreen/30">PRO SCOUT</span>
+                        </div>
+                        <p class="text-[11px] text-zinc-500 -mt-1">Bangladesh Diaspora Ballers</p>
+                    </div>
+                </div>
+
+                <div id="desktopAdminTabs" class="hidden md:flex items-center bg-obsidian border border-borderDark rounded-xl p-1">
+                    <button type="button" onclick="switchTab('database')" id="nav-database" class="tab-btn px-4 py-1.5 rounded-lg text-xs font-semibold bg-zinc-800 text-bdbGreen transition cursor-pointer">
+                        <i class="fa-solid fa-users-viewfinder mr-1.5"></i>সকল প্লেয়ার
+                    </button>
+                    <button type="button" onclick="switchTab('lineup')" id="nav-lineup" class="tab-btn px-4 py-1.5 rounded-lg text-xs font-semibold text-zinc-400 hover:text-white transition cursor-pointer">
+                        <i class="fa-solid fa-chess-board mr-1.5"></i>BDB XI ফর্মেশন
+                    </button>
+                    <button type="button" onclick="switchTab('compare')" id="nav-compare" class="tab-btn px-4 py-1.5 rounded-lg text-xs font-semibold text-zinc-400 hover:text-white transition cursor-pointer">
+                        <i class="fa-solid fa-code-compare mr-1.5"></i>তুলনা (Compare)
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2 sm:gap-2.5">
+                    <button type="button" onclick="toggleLanguage()" id="langToggleBtn" class="bg-carbon hover:bg-zinc-900 border border-zinc-700 text-bdbGreen font-sans text-xs font-bold px-2.5 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer" title="Switch Language">
+                        <i class="fa-solid fa-language text-sm"></i>
+                        <span id="langToggleLabel">EN</span>
+                    </button>
+
+                    <div id="accountArea">
+                        <button type="button" onclick="openAuthModal()" class="bg-carbon hover:bg-zinc-900 border border-zinc-700 text-zinc-200 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-user-shield text-bdbGreen"></i>
+                            <span id="currentAccountLabel" data-i18n="nav_login">অ্যাকাউন্ট / লগইন</span>
+                        </button>
+                    </div>
+
+                    <button type="button" id="topAddPlayerBtn" onclick="handleAddPlayerClick()" class="bg-bdbGreen hover:bg-emerald-400 text-black text-xs font-bold px-3 py-2 rounded-xl transition shadow-[0_0_20px_rgba(0,230,118,0.25)] flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-plus"></i>
+                        <span class="hidden sm:inline" data-i18n="nav_add_player">প্লেয়ার যুক্ত করুন</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobileNavBar" class="hidden md:hidden border-t border-borderDark bg-obsidian px-2 py-1.5 flex justify-around">
+            <button type="button" onclick="switchTab('database')" id="m-nav-database" class="text-xs font-semibold text-bdbGreen py-1.5 px-3 rounded-lg bg-zinc-900 cursor-pointer">
+                <i class="fa-solid fa-users mr-1"></i>প্লেয়ার
+            </button>
+            <button type="button" onclick="switchTab('lineup')" id="m-nav-lineup" class="text-xs font-semibold text-zinc-400 py-1.5 px-3 rounded-lg cursor-pointer">
+                <i class="fa-solid fa-chess-board mr-1"></i>BDB XI
+            </button>
+            <button type="button" onclick="switchTab('compare')" id="m-nav-compare" class="text-xs font-semibold text-zinc-400 py-1.5 px-3 rounded-lg cursor-pointer">
+                <i class="fa-solid fa-scale-balanced mr-1"></i>তুলনা
+            </button>
+        </div>
+    </nav>
+
+    <div id="roleBanner" class="hidden bg-zinc-950 border-b border-zinc-800 py-2 px-4">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded bg-bdbGreen/20 text-bdbGreen font-sans font-bold uppercase" id="roleBadgeText">SCOUT</span>
+                <span class="text-zinc-300" id="roleWelcomeText">স্বাগতম!</span>
+            </div>
+            <button type="button" onclick="logoutAccount()" class="text-bdbRed hover:underline font-semibold cursor-pointer">লগআউট</button>
+        </div>
+    </div>
+
+    <header id="heroSection" class="relative overflow-hidden border-b border-borderDark bg-void py-10 sm:py-14">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-950/30 via-black to-black pointer-events-none"></div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
+                <div class="max-w-2xl text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-carbon text-bdbGreen border border-zinc-800 mb-4">
+                        <span class="w-2 h-2 rounded-full bg-bdbGreen animate-ping"></span>
+                        BDB GLOBAL SCOUTING ENGINE • V3.0
+                    </div>
+                    <h1 class="text-3xl sm:text-5xl font-bold text-white tracking-tight leading-tight mb-3" data-i18n="hero_title">
+                        বিশ্বজুড়ে ছড়িয়ে থাকা বাংলাদেশি বংশোদ্ভূত ফুটবলারদের পূর্ণাঙ্গ ডাটাবেস
+                    </h1>
+                    <p class="text-sm sm:text-base text-zinc-400 leading-relaxed" data-i18n="hero_subtitle">
+                        ইংল্যান্ড, কানাডা, ফিনল্যান্ড, ডেনমার্ক, আমেরিকা ও অস্ট্রেলিয়াসহ বিশ্বের বিভিন্ন লিগে খেলা প্রবাসী ফুটবলারদের অ্যাডভান্সড স্কাউটিং, পাসপোর্ট স্ট্যাটাস এবং টেকনিক্যাল অ্যানালিটিক্স।
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-3 w-full lg:w-auto min-w-[280px]">
+                    <div class="bg-carbon border border-borderDark p-4 rounded-2xl">
+                        <div class="font-sans text-2xl sm:text-3xl font-black text-white" id="stat-total">9</div>
+                        <div class="text-xs text-zinc-500 mt-0.5" data-i18n="stat_total">মোট BDB প্লেয়ার</div>
+                    </div>
+                    <div class="bg-carbon border border-borderDark p-4 rounded-2xl">
+                        <div class="font-sans text-2xl sm:text-3xl font-black text-bdbGreen" id="stat-verified">6</div>
+                        <div class="text-xs text-zinc-500 mt-0.5" data-i18n="stat_verified">পাসপোর্ট নিশ্চিত</div>
+                    </div>
+                    <div class="bg-carbon border border-borderDark p-4 rounded-2xl">
+                        <div class="font-sans text-2xl sm:text-3xl font-black text-amber-400" id="stat-u23">5</div>
+                        <div class="text-xs text-zinc-500 mt-0.5" data-i18n="stat_u23">U-23 ও একাডেমি</div>
+                    </div>
+                    <div class="bg-carbon border border-borderDark p-4 rounded-2xl">
+                        <div class="font-sans text-2xl sm:text-3xl font-black text-sky-400" id="stat-watchlist">2</div>
+                        <div class="text-xs text-zinc-500 mt-0.5" data-i18n="stat_watchlist">ওয়াচলিস্ট</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="loginRequiredScreen" class="max-w-3xl mx-auto px-4 py-14">
+        <div class="bg-obsidian border border-zinc-800 rounded-3xl p-6 sm:p-10 text-center shadow-2xl">
+            <div class="w-16 h-16 rounded-2xl bg-carbon border border-bdbGreen/40 text-bdbGreen flex items-center justify-center mx-auto mb-5 shadow-[0_0_25px_rgba(0,230,118,0.2)]">
+                <i class="fa-solid fa-shield-halved text-2xl"></i>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2" data-i18n="portal_title">BDB মেম্বার পোর্টাল</h2>
+            <p class="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto mb-6 leading-relaxed" data-i18n="portal_desc">
+                বাংলাদেশ প্রবাসী ফুটবলার স্কাউটিং নেটওয়ার্কে স্বাগতম। প্রতিদিনের ম্যাচের ফলাফল আপলোড ও আপনার ব্যক্তিগত ড্যাশবোর্ড ব্যবহার করতে নিচে লগইন করুন।
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                <button type="button" onclick="openAuthModal()" class="bg-bdbGreen hover:bg-emerald-400 text-black font-bold text-sm px-6 py-3.5 rounded-xl transition shadow-[0_0_20px_rgba(0,230,118,0.3)] inline-flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="portal_login_btn">নিজস্ব অ্যাকাউন্টে লগইন করুন</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="userPersonalDashboard" class="hidden max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="bg-obsidian border border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800 pb-6 mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-bdbGreen/15 text-bdbGreen flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-xl font-bold text-white" id="userDashTitle">ব্যক্তিগত অ্যাকাউন্ট ড্যাশবোর্ড</h2>
+                            <span id="userDashRoleTag" class="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-700 text-bdbGreen font-sans text-[11px] font-bold">USER</span>
+                        </div>
+                        <p class="text-xs text-zinc-400 mt-1" id="userDashSubtitle">আপনার অ্যাকাউন্টের নির্ধারিত কার্যক্রম এখান থেকে পরিচালনা করুন।</p>
+                    </div>
+                </div>
+                <div class="bg-void border border-amber-500/30 rounded-xl px-3.5 py-2.5 text-xs text-amber-400 flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span data-i18n="restricted_note">পূর্ণাঙ্গ ডাটাবেস শুধুমাত্র অ্যাডমিনের জন্য সংরক্ষিত</span>
+                </div>
+            </div>
+
+            <div id="userWorkspaceContent" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </div>
+    </section>
+
+    <main id="view-database" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="adminMatchFeedBox" class="mb-6 bg-obsidian border border-zinc-800 rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-bdbGreen animate-ping"></span>
+                    <i class="fa-solid fa-futbol text-bdbGreen"></i> স্কাউট ও প্লেয়ারদের প্রতিদিনের ম্যাচ রিপোর্ট ফিড
+                </h3>
+                <span class="text-xs text-zinc-400" id="totalMatchReportsBadge">মোট রিপোর্ট: 0</span>
+            </div>
+            <div id="adminMatchReportsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-60 overflow-y-auto pr-1"></div>
+        </div>
+
+        <div class="bg-obsidian border border-borderDark rounded-2xl p-4 mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div class="lg:col-span-2 relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"></i>
+                    <input type="text" id="searchInput" oninput="applyFilters()" placeholder="নাম, ক্লাব, দেশ বা বংশপরিচয় খুঁজুন..." class="w-full bg-void border border-zinc-800 rounded-xl pl-9 pr-3 py-2.5 text-xs text-white focus:border-bdbGreen focus:outline-none">
+                </div>
+                <div>
+                    <select id="positionFilter" onchange="applyFilters()" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white focus:border-bdbGreen focus:outline-none">
+                        <option value="ALL">সকল পজিশন</option>
+                        <option value="FW">ফরোয়ার্ড (FW)</option>
+                        <option value="MF">মিডফিল্ডার (MF)</option>
+                        <option value="DF">ডিফেন্ডার (DF)</option>
+                        <option value="GK">গোলকিপার (GK)</option>
+                    </select>
+                </div>
+                <div>
+                    <select id="eligibilityFilter" onchange="applyFilters()" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white focus:border-bdbGreen focus:outline-none">
+                        <option value="ALL">সকল পাসপোর্ট স্ট্যাটাস</option>
+                        <option value="Verified">Verified (নিশ্চিত)</option>
+                        <option value="In Process">In Process (প্রক্রিয়াধীন)</option>
+                        <option value="Heritage">Heritage (বংশোদ্ভূত)</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <select id="ageFilter" onchange="applyFilters()" class="w-full bg-void border border-zinc-800 rounded-xl px-2.5 py-2.5 text-xs text-white focus:border-bdbGreen focus:outline-none">
+                        <option value="ALL">সব বয়স</option>
+                        <option value="U20">U-20</option>
+                        <option value="U23">U-23</option>
+                        <option value="SENIOR">Senior</option>
+                    </select>
+                    <select id="sortFilter" onchange="applyFilters()" class="w-full bg-void border border-zinc-800 rounded-xl px-2.5 py-2.5 text-xs text-white focus:border-bdbGreen focus:outline-none">
+                        <option value="rating">রেটিং</option>
+                        <option value="age_asc">বয়স (তরুণ আগে)</option>
+                        <option value="goals">গোল (সর্বোচ্চ)</option>
+                        <option value="watchlist">আমার ওয়াচলিস্ট</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between mt-4 pt-3 border-t border-zinc-900 gap-2">
+                <div class="flex flex-wrap items-center gap-2 text-xs">
+                    <span class="text-zinc-500">ফলাফল: <strong id="resultCount" class="text-white">0</strong> জন</span>
+                    <button type="button" onclick="filterByQuickTag('Verified')" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-bdbGreen border border-zinc-800 transition cursor-pointer">✓ জাতীয় দল রেডি</button>
+                    <button type="button" onclick="filterByQuickTag('U23')" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-amber-400 border border-zinc-800 transition cursor-pointer">★ U-23 প্রস্পেক্ট</button>
+                </div>
+                <button type="button" onclick="resetFilters()" class="text-xs text-zinc-400 hover:text-bdbGreen transition flex items-center gap-1 cursor-pointer">
+                    <i class="fa-solid fa-rotate-left"></i> রিসেট ফিল্টার
+                </button>
+            </div>
+        </div>
+
+        <div id="playersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+
+        <div id="emptyState" class="hidden text-center py-16 bg-obsidian rounded-2xl border border-borderDark">
+            <i class="fa-solid fa-radar text-4xl text-zinc-700 mb-3"></i>
+            <h3 class="text-base font-bold text-zinc-300">কোনো ফুটবলার পাওয়া যায়নি</h3>
+            <p class="text-xs text-zinc-500 mt-1">ফিল্টার পরিবর্তন করে আবার চেষ্টা করুন।</p>
+        </div>
+    </main>
+
+    <section id="view-lineup" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-shirt text-bdbGreen"></i> BDB সেরা একাদশ (4-3-3 ফর্মেশন)
+                </h2>
+                <p class="text-xs text-zinc-400 mt-1">প্রবাসী ফুটবলারদের নিয়ে আপনার পছন্দের জাতীয় দলের একাদশ সাজান। পজিশনে ক্লিক করে প্লেয়ার পরিবর্তন করুন।</p>
+            </div>
+            <button type="button" onclick="autoFillBestXI()" class="bg-carbon hover:bg-zinc-900 border border-bdbGreen/40 text-bdbGreen text-xs font-bold px-4 py-2.5 rounded-xl transition self-start cursor-pointer">
+                <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i>সেরা রেটিং XI অটো-ফিল
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 pitch-bg border-2 border-zinc-800 rounded-3xl p-4 sm:p-8 relative min-h-[540px] flex flex-col justify-between shadow-2xl overflow-hidden">
+                <div class="absolute inset-x-8 top-1/2 border-t border-white/15 pointer-events-none"></div>
+                <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 rounded-full border border-white/15 pointer-events-none"></div>
+                
+                <div class="grid grid-cols-3 gap-2 z-10 pt-2" id="pitch-fw"></div>
+                <div class="grid grid-cols-3 gap-2 z-10" id="pitch-mf"></div>
+                <div class="grid grid-cols-4 gap-2 z-10" id="pitch-df"></div>
+                <div class="flex justify-center z-10 pb-1" id="pitch-gk"></div>
+            </div>
+
+            <div class="bg-obsidian border border-borderDark rounded-2xl p-5 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-bold text-white border-b border-zinc-800 pb-3 mb-4 flex items-center justify-between">
+                        <span>স্কোয়াড নির্বাচন করুন</span>
+                        <span id="selectedSlotBadge" class="text-xs px-2 py-0.5 rounded bg-bdbGreen/20 text-bdbGreen font-sans">ST</span>
+                    </h3>
+                    <p class="text-xs text-zinc-400 mb-3">পিচের যেকোনো পজিশনে ক্লিক করে নিচের তালিকা থেকে প্লেয়ার বসান:</p>
+                    <div id="lineupPlayerPool" class="space-y-2 max-h-[380px] overflow-y-auto pr-1"></div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-zinc-800 flex items-center justify-between text-xs">
+                    <span class="text-zinc-400">গড় টিম রেটিং:</span>
+                    <span id="teamAvgRating" class="font-sans font-black text-lg text-bdbGreen">82.5</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="view-compare" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-code-compare text-bdbGreen"></i> প্লেয়ার তুলনা (Head-to-Head Analytics)
+            </h2>
+            <p class="text-xs text-zinc-400 mt-1">দুইজন প্রবাসী ফুটবলারের পরিসংখ্যান ও টেকনিক্যাল দক্ষতা পাশাপাশি তুলনা করুন।</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-obsidian border border-borderDark p-4 rounded-2xl">
+                <label class="block text-xs text-zinc-400 mb-1.5">প্রথম ফুটবলার নির্বাচন করুন</label>
+                <select id="compareSelect1" onchange="renderComparison()" class="w-full bg-void border border-zinc-800 text-white text-sm rounded-xl px-3 py-2.5 focus:border-bdbGreen focus:outline-none"></select>
+            </div>
+            <div class="bg-obsidian border border-borderDark p-4 rounded-2xl">
+                <label class="block text-xs text-zinc-400 mb-1.5">দ্বিতীয় ফুটবলার নির্বাচন করুন</label>
+                <select id="compareSelect2" onchange="renderComparison()" class="w-full bg-void border border-zinc-800 text-white text-sm rounded-xl px-3 py-2.5 focus:border-bdbGreen focus:outline-none"></select>
+            </div>
+        </div>
+
+        <div id="comparisonResult" class="bg-obsidian border border-borderDark rounded-2xl p-6"></div>
+    </section>
+
+    <div id="playerModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-obsidian border border-zinc-800 rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl" id="modalContent"></div>
+    </div>
+
+    <div id="authModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-obsidian border border-zinc-800 rounded-3xl max-w-md w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-zinc-800 pb-4 mb-5">
+                <div>
+                    <h3 class="text-lg font-bold text-white" data-i18n="auth_title">BDB অ্যাকাউন্ট লগইন</h3>
+                    <p class="text-xs text-zinc-400" data-i18n="auth_subtitle">আপনার নাম দিয়ে নিজস্ব পোর্টালে প্রবেশ করুন</p>
+                </div>
+                <button type="button" onclick="closeModal('authModal')" class="text-zinc-500 hover:text-white p-2 cursor-pointer">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 mb-4 bg-void p-3.5 rounded-2xl border border-zinc-800">
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1" data-i18n="auth_name_label">আপনার নাম / ইউজারনেম</label>
+                    <input type="text" id="loginUserNameInput" placeholder="e.g. Tanvir Ahmed / তানভীর আহমেদ" class="w-full bg-obsidian border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white focus:border-bdbGreen focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1" data-i18n="auth_code_label">অ্যাক্সেস কোড (যদি থাকে)</label>
+                    <input type="password" id="adminPinInput" placeholder="••••" class="w-full bg-obsidian border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white focus:border-bdbGreen focus:outline-none">
+                </div>
+            </div>
+
+            <div class="space-y-2.5">
+                <button type="button" onclick="attemptRoleLogin('SCOUT', 'Official BDB Scout')" class="w-full text-left p-3.5 rounded-2xl bg-carbon hover:bg-zinc-900 border border-zinc-800 hover:border-bdbGreen transition flex items-center justify-between group cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-bdbGreen/15 text-bdbGreen flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-binoculars"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-bold text-white group-hover:text-bdbGreen" data-i18n="role_scout_title">স্কাউট অ্যাকাউন্ট (Scout)</div>
+                            <div class="text-[11px] text-zinc-400" data-i18n="role_scout_desc">নতুন প্রতিভা ও প্রতিদিনের ম্যাচের ফলাফল আপলোড</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-zinc-600"></i>
+                </button>
+
+                <button type="button" onclick="attemptRoleLogin('PLAYER', 'Diaspora Player / Agent')" class="w-full text-left p-3.5 rounded-2xl bg-carbon hover:bg-zinc-900 border border-zinc-800 hover:border-bdbGreen transition flex items-center justify-between group cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-futbol"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-bold text-white group-hover:text-bdbGreen" data-i18n="role_player_title">প্লেয়ার / এজেন্ট অ্যাকাউন্ট</div>
+                            <div class="text-[11px] text-zinc-400" data-i18n="role_player_desc">নিজের প্রোফাইল ও প্রতিদিনের ম্যাচ রেজাল্ট আপলোড</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-zinc-600"></i>
+                </button>
+
+                <button type="button" onclick="attemptRoleLogin('FAN', 'BDB Supporter')" class="w-full text-left p-3.5 rounded-2xl bg-carbon hover:bg-zinc-900 border border-zinc-800 hover:border-bdbGreen transition flex items-center justify-between group cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-heart"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-bold text-white group-hover:text-bdbGreen" data-i18n="role_fan_title">ফ্যান / সাপোর্টার অ্যাকাউন্ট</div>
+                            <div class="text-[11px] text-zinc-400" data-i18n="role_fan_desc">নিজস্ব সাপোর্টার পোর্টাল ও প্লেয়ার সাজেস্ট করা</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-zinc-600"></i>
+                </button>
+
+                <div class="pt-2 border-t border-zinc-900 text-center">
+                    <button type="button" onclick="attemptRoleLogin('ADMIN', 'BDB Chief Admin')" class="text-[11px] text-zinc-500 hover:text-bdbGreen py-1.5 px-3 transition cursor-pointer">
+                        Staff / Official Access (Pin: 1234)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="submitModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-obsidian border border-zinc-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-zinc-800 pb-4 mb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-bdbGreen"></i> BDB ডাটাবেসে প্লেয়ার যুক্ত করুন
+                </h3>
+                <button type="button" onclick="closeModal('submitModal')" class="text-zinc-500 hover:text-white p-2 cursor-pointer">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <form id="addPlayerForm" class="space-y-3.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1">ফুটবলারের পূর্ণ নাম *</label>
+                        <input type="text" id="pName" required placeholder="যেমন: জায়ান আহমেদ" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1">বয়স *</label>
+                        <input type="number" id="pAge" required min="14" max="42" placeholder="21" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1">বর্তমান ক্লাব *</label>
+                        <input type="text" id="pClub" required placeholder="যেমন: QPR U21" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1">দেশ ও লিগ *</label>
+                        <input type="text" id="pCountry" required placeholder="যেমন: England (PDL)" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1">পজিশন *</label>
+                        <select id="pPosition" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none">
+                            <option value="MF">মিডফিল্ডার (MF)</option>
+                            <option value="FW">ফরোয়ার্ড (FW)</option>
+                            <option value="DF">ডিফেন্ডার (DF)</option>
+                            <option value="GK">গোলকিপার (GK)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1">স্পেসিফিক রোল</label>
+                        <input type="text" id="pSpecPos" placeholder="CAM / LW" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1">পাসপোর্ট স্ট্যাটাস</label>
+                        <select id="pStatus" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none">
+                            <option value="Verified">Verified</option>
+                            <option value="In Process">In Process</option>
+                            <option value="Heritage">Heritage</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-zinc-400 mb-1">বাংলাদেশি বংশপরিচয় (জেলা / উৎস)</label>
+                    <input type="text" id="pHeritage" placeholder="যেমন: ব্রিটিশ-বাংলাদেশি (সিলেট)" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs text-zinc-400 mb-1">স্কাউট নোট ও খেলার ধরন</label>
+                    <textarea id="pNotes" rows="2" placeholder="প্লেয়ারের গতি, পাসিং ও শক্তিমত্তা..." class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeModal('submitModal')" class="px-4 py-2 rounded-xl text-xs text-zinc-400 hover:bg-zinc-900 transition cursor-pointer">বাতিল</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-bdbGreen hover:bg-emerald-400 text-black transition cursor-pointer">BDB ডাটাবেসে যুক্ত করুন</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="matchReportModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-obsidian border border-zinc-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-zinc-800 pb-4 mb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-check text-bdbGreen"></i> আজকের ম্যাচের ফলাফল আপলোড
+                    </h3>
+                    <p class="text-[11px] text-zinc-400">প্রতিদিনের ম্যাচ পারফরম্যান্স সরাসরি অ্যাডমিনের কাছে পাঠান</p>
+                </div>
+                <button type="button" onclick="closeModal('matchReportModal')" class="text-zinc-500 hover:text-white p-2 cursor-pointer">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <form id="dailyMatchForm" class="space-y-3.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1">ফুটবলারের নাম *</label>
+                        <input type="text" id="mPlayerName" required placeholder="যেমন: কুবান মিচেল" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1">ম্যাচের তারিখ *</label>
+                        <input type="date" id="mDate" required class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1">নিজ দল বনাম প্রতিপক্ষ *</label>
+                        <input type="text" id="mFixture" required placeholder="Sunderland U21 vs Arsenal U21" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1">ম্যাচের ফলাফল (স্কোর) *</label>
+                        <input type="text" id="mScore" required placeholder="যেমন: ২-১ (জয়)" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1">গোল</label>
+                        <input type="number" id="mGoals" min="0" value="0" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1">অ্যাসিস্ট</label>
+                        <input type="number" id="mAssists" min="0" value="0" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1">মিনিট</label>
+                        <input type="number" id="mMinutes" min="1" max="120" value="90" class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-zinc-400 mb-1">ম্যাচ নোট</label>
+                    <textarea id="mNotes" rows="2" placeholder="ম্যাচে কেমন খেলেছে..." class="w-full bg-void border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:border-bdbGreen focus:outline-none"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeModal('matchReportModal')" class="px-4 py-2 rounded-xl text-xs text-zinc-400 hover:bg-zinc-900 transition cursor-pointer">বাতিল</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-bdbGreen hover:bg-emerald-400 text-black transition cursor-pointer">ম্যাচ রিপোর্ট পাঠান</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-zinc-900 border border-bdbGreen text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-semibold">
+        <i class="fa-solid fa-circle-check text-bdbGreen text-base"></i>
+        <span id="toastMessage">সফল হয়েছে!</span>
+    </div>
+
+    <footer class="border-t border-borderDark bg-void py-8 mt-16">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
+            <div class="flex items-center gap-2">
+                <span class="font-sans font-black text-white">BDB</span>
+                <span>• Bangladesh Diaspora Ballers Scouting Network</span>
+                <span id="cloudSyncBadge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-900 text-bdbGreen border border-zinc-800 text-[10px]">
+                    <i class="fa-solid fa-database"></i> Auto-Saved
+                </span>
+            </div>
+            <p>© ২০২৬ BDB Scout Platform. সর্বস্বত্ব সংরক্ষিত।</p>
+        </div>
+    </footer>
+
+    <script>
+        const STORAGE_KEY = 'BDB_PLATFORM_DATA_V3';
+
+        const i18n = {
+            bn: {
+                nav_login: "অ্যাকাউন্ট / লগইন",
+                nav_add_player: "প্লেয়ার যুক্ত করুন",
+                hero_title: "বিশ্বজুড়ে ছড়িয়ে থাকা বাংলাদেশি বংশোদ্ভূত ফুটবলারদের পূর্ণাঙ্গ ডাটাবেস",
+                hero_subtitle: "ইংল্যান্ড, কানাডা, ফিনল্যান্ড, ডেনমার্ক, আমেরিকা ও অস্ট্রেলিয়াসহ বিশ্বের বিভিন্ন লিগে খেলা প্রবাসী ফুটবলারদের অ্যাডভান্সড স্কাউটিং, পাসপোর্ট স্ট্যাটাস এবং টেকনিক্যাল অ্যানালিটিক্স।",
+                stat_total: "মোট BDB প্লেয়ার",
+                stat_verified: "পাসপোর্ট নিশ্চিত",
+                stat_u23: "U-23 ও একাডেমি",
+                stat_watchlist: "ওয়াচলিস্ট",
+                portal_title: "BDB মেম্বার পোর্টাল",
+                portal_desc: "বাংলাদেশ প্রবাসী ফুটবলার স্কাউটিং নেটওয়ার্কে স্বাগতম। প্রতিদিনের ম্যাচের ফলাফল আপলোড ও আপনার ব্যক্তিগত ড্যাশবোর্ড ব্যবহার করতে নিচে লগইন করুন।",
+                portal_login_btn: "নিজস্ব অ্যাকাউন্টে লগইন করুন",
+                dash_suffix: "ব্যক্তিগত ড্যাশবোর্ড",
+                restricted_note: "পূর্ণাঙ্গ ডাটাবেস শুধুমাত্র অ্যাডমিনের জন্য সংরক্ষিত",
+                daily_badge: "ডেইলি ম্যাচ পারফরম্যান্স",
+                daily_title: "আজকের ম্যাচের ফলাফল আপলোড করুন",
+                daily_desc: "আপনার বা আপনার ক্লাবের প্রবাসীর আজকের ম্যাচের গোল, অ্যাসিস্ট ও পারফরম্যান্স জমা দিন।",
+                daily_btn: "ম্যাচ রেজাল্ট দিন",
+                my_matches_title: "আমার সাবমিট করা ম্যাচ রিপোর্ট",
+                no_matches: "কোনো ম্যাচ রিপোর্ট জমা দেওয়া হয়নি।",
+                fan_zone_badge: "সাপোর্টার জোন",
+                fan_zone_title: "আপনার প্রিয় প্রবাসী ফুটবলার সাজেস্ট করুন",
+                fan_zone_desc: "আপনার জানা কোনো প্রবাসী ফুটবলার থাকলে আমাদের ডাটাবেসে যুক্ত করার জন্য সাজেস্ট করতে পারেন।",
+                fan_suggested_count: "মোট সাজেস্টেড প্লেয়ার",
+                submit_player_title: "নতুন ফুটবলার সাবমিট করুন",
+                submit_player_desc: "নতুন কোনো প্রবাসী ফুটবলার সম্পর্কে তথ্য থাকলে ফর্ম পূরণ করে অ্যাডমিনের কাছে পাঠান।",
+                submit_player_btn: "ফুটবলার সাবমিট করুন",
+                submitted_list_title: "আমার সাবমিট করা প্রোফাইল",
+                no_submissions: "কোনো প্লেয়ার সাবমিট করা হয়নি।",
+                review_badge: "রিভিউ চলছে",
+                auth_title: "BDB অ্যাকাউন্ট লগইন",
+                auth_subtitle: "আপনার নাম দিয়ে নিজস্ব পোর্টালে প্রবেশ করুন",
+                auth_name_label: "আপনার নাম / ইউজারনেম",
+                auth_code_label: "অ্যাক্সেস কোড (যদি থাকে)",
+                role_scout_title: "স্কাউট অ্যাকাউন্ট (Scout)",
+                role_scout_desc: "নতুন প্রতিভা ও প্রতিদিনের ম্যাচের ফলাফল আপলোড",
+                role_player_title: "প্লেয়ার / এজেন্ট অ্যাকাউন্ট",
+                role_player_desc: "নিজের প্রোফাইল ও প্রতিদিনের ম্যাচ রেজাল্ট আপলোড",
+                role_fan_title: "ফ্যান / সাপোর্টার অ্যাকাউন্ট",
+                role_fan_desc: "নিজস্ব সাপোর্টার পোর্টাল ও প্লেয়ার সাজেস্ট করা"
+            },
+            en: {
+                nav_login: "Account / Login",
+                nav_add_player: "Add Player",
+                hero_title: "Complete Database of Bangladeshi Diaspora Ballers Worldwide",
+                hero_subtitle: "Advanced scouting, passport status, and technical analytics of professional diaspora footballers in England, Canada, Finland, Denmark, USA, Australia, and more.",
+                stat_total: "Total BDB Players",
+                stat_verified: "Passport Verified",
+                stat_u23: "U-23 & Academies",
+                stat_watchlist: "Watchlist",
+                portal_title: "BDB Member Portal",
+                portal_desc: "Welcome to the Bangladesh Diaspora Ballers Scouting Network. Log in below to upload daily match results and access your personal dashboard.",
+                portal_login_btn: "Log In to Your Account",
+                dash_suffix: "Personal Dashboard",
+                restricted_note: "Full database is restricted to Admins only",
+                daily_badge: "Daily Match Performance",
+                daily_title: "Upload Today's Match Result",
+                daily_desc: "Submit goals, assists, and performance metrics for today's match.",
+                daily_btn: "Submit Match Result",
+                my_matches_title: "My Submitted Match Reports",
+                no_matches: "No match reports submitted yet.",
+                fan_zone_badge: "Supporter Zone",
+                fan_zone_title: "Suggest a Diaspora Footballer",
+                fan_zone_desc: "Know any talented diaspora footballer? Suggest them to our scouting team.",
+                fan_suggested_count: "Total Suggested Players",
+                submit_player_title: "Submit New Player",
+                submit_player_desc: "Fill out the form to submit a diaspora footballer to the admin.",
+                submit_player_btn: "Submit Footballer",
+                submitted_list_title: "My Submitted Profiles",
+                no_submissions: "No players submitted yet.",
+                review_badge: "Under Review",
+                auth_title: "BDB Account Login",
+                auth_subtitle: "Enter your name to access your portal",
+                auth_name_label: "Your Name / Username",
+                auth_code_label: "Access Code (If applicable)",
+                role_scout_title: "Scout Account",
+                role_scout_desc: "Upload new talents and daily match results",
+                role_player_title: "Player / Agent Account",
+                role_player_desc: "Manage profile & daily match uploads",
+                role_fan_title: "Fan / Supporter Account",
+                role_fan_desc: "Supporter portal & player suggestions"
+            }
+        };
+
+        const defaultPlayers = [
+            {
+                id: 1,
+                name: "হামজা চৌধুরী (Hamza Choudhury)",
+                age: 28,
+                position: "MF",
+                specificPos: "CDM / RB",
+                club: "Leicester City",
+                country: "England",
+                league: "EFL Championship",
+                status: "Verified",
+                rating: 89,
+                height: "1.78m",
+                foot: "Right",
+                appearances: 26,
+                goals: 2,
+                assists: 4,
+                votes: 1420,
+                heritage: "ব্রিটিশ-বাংলাদেশি (হবিগঞ্জ/সিলেট)",
+                scoutNote: "ইংলিশ প্রিমিয়ার লিগ অভিজ্ঞতা সম্পন্ন হাই-ইনটেনসিটি বল-উইনিং মিডফিল্ডার। ট্যাকলিং, ইন্টারসেপশন এবং পজিশনাল ডিসিপ্লিনে দক্ষিণ এশিয়ার সেরা।",
+                attributes: { pace: 79, shooting: 68, passing: 84, dribbling: 80, defending: 89, physical: 87 }
+            },
+            {
+                id: 2,
+                name: "সামিত সোম (Shamit Shome)",
+                age: 28,
+                position: "MF",
+                specificPos: "CM / CAM",
+                club: "Cavalry FC",
+                country: "Canada",
+                league: "Canadian Premier League",
+                status: "Verified",
+                rating: 84,
+                height: "1.75m",
+                foot: "Right",
+                appearances: 29,
+                goals: 4,
+                assists: 8,
+                votes: 980,
+                heritage: "কানাডিয়ান-বাংলাদেশি (সিলেট)",
+                scoutNote: "এমএলএস ও কানাডা জাতীয় দলে খেলার অভিজ্ঞতা সম্পন্ন টেকনিক্যাল মিডফিল্ডার।",
+                attributes: { pace: 80, shooting: 75, passing: 85, dribbling: 86, defending: 74, physical: 78 }
+            },
+            {
+                id: 3,
+                name: "তারিক কাজী (Tariq Kazi)",
+                age: 25,
+                position: "DF",
+                specificPos: "CB / RB",
+                club: "Bashundhara Kings",
+                country: "Finland / Bangladesh",
+                league: "Bangladesh Premier League",
+                status: "Verified",
+                rating: 82,
+                height: "1.81m",
+                foot: "Right",
+                appearances: 24,
+                goals: 2,
+                assists: 3,
+                votes: 865,
+                heritage: "ফিনিশ-বাংলাদেশি (নওগাঁ)",
+                scoutNote: "ফিনল্যান্ডের বয়সভিত্তিক জাতীয় দলে খেলা আধুনিক ডিফেন্ডার।",
+                attributes: { pace: 82, shooting: 62, passing: 78, dribbling: 76, defending: 84, physical: 82 }
+            },
+            {
+                id: 4,
+                name: "জামাল ভূঁইয়া (Jamal Bhuyan)",
+                age: 35,
+                position: "MF",
+                specificPos: "CM / CDM",
+                club: "Brothers Union",
+                country: "Denmark / Bangladesh",
+                league: "Bangladesh Premier League",
+                status: "Verified",
+                rating: 80,
+                height: "1.74m",
+                foot: "Right",
+                appearances: 20,
+                goals: 1,
+                assists: 6,
+                votes: 1150,
+                heritage: "ডেনিশ-বাংলাদেশি (কিশোরগঞ্জ)",
+                scoutNote: "বাংলাদেশ প্রবাসী ফুটবলারদের অগ্রদূত ও সেট-পিস স্পেশালিস্ট।",
+                attributes: { pace: 69, shooting: 72, passing: 85, dribbling: 78, defending: 76, physical: 74 }
+            },
+            {
+                id: 5,
+                name: "কুবান মিচেল (Cuba Mitchell)",
+                age: 20,
+                position: "MF",
+                specificPos: "CM / RW",
+                club: "Sunderland AFC U21",
+                country: "England",
+                league: "Premier League 2",
+                status: "In Process",
+                rating: 81,
+                height: "1.77m",
+                foot: "Left",
+                appearances: 21,
+                goals: 5,
+                assists: 7,
+                votes: 910,
+                heritage: "ব্রিটিশ-বাংলাদেশি (সিলেট)",
+                scoutNote: "সান্ডারল্যান্ড একাডেমিতে বেড়ে ওঠা অত্যন্ত সম্ভাবনাময় তরুণ।",
+                attributes: { pace: 84, shooting: 76, passing: 81, dribbling: 85, defending: 65, physical: 73 }
+            },
+            {
+                id: 6,
+                name: "জায়ান আহমেদ (Zayan Ahmed)",
+                age: 21,
+                position: "DF",
+                specificPos: "LB / LWB",
+                club: "George Mason Patriots",
+                country: "USA",
+                league: "NCAA Division I",
+                status: "Verified",
+                rating: 78,
+                height: "1.79m",
+                foot: "Left",
+                appearances: 18,
+                goals: 2,
+                assists: 5,
+                votes: 640,
+                heritage: "আমেরিকান-বাংলাদেশি (ঢাকা)",
+                scoutNote: "বাঁ প্রান্তে আক্রমণাত্মক ও রক্ষণাত্মক দুই ভূমিকাতেই ভারসাম্যপূর্ণ।",
+                attributes: { pace: 85, shooting: 66, passing: 77, dribbling: 79, defending: 76, physical: 78 }
+            },
+            {
+                id: 7,
+                name: "ফাহমিদুল ইসলাম (Fahamedul Islam)",
+                age: 19,
+                position: "FW",
+                specificPos: "LW / CF",
+                club: "Olbia Calcio 1905",
+                country: "Italy",
+                league: "Serie D",
+                status: "Verified",
+                rating: 79,
+                height: "1.82m",
+                foot: "Right",
+                appearances: 22,
+                goals: 8,
+                assists: 4,
+                votes: 790,
+                heritage: "ইতালিয়ান-বাংলাদেশি (ফেনী)",
+                scoutNote: "ইতালিয়ান ফুটবল সিস্টেমে বেড়ে ওঠা দ্রুতগতির উইঙ্গার ও ফরোয়ার্ড।",
+                attributes: { pace: 87, shooting: 79, passing: 73, dribbling: 82, defending: 48, physical: 76 }
+            },
+            {
+                id: 8,
+                name: "ইউসুফ জুলকারনাইন (Yusuf Zulkarnain)",
+                age: 22,
+                position: "FW",
+                specificPos: "ST",
+                club: "Melbourne Knights",
+                country: "Australia",
+                league: "NPL Victoria",
+                status: "Heritage",
+                rating: 77,
+                height: "1.85m",
+                foot: "Right",
+                appearances: 19,
+                goals: 9,
+                assists: 2,
+                votes: 520,
+                heritage: "অস্ট্রেলিয়ান-বাংলাদেশি (চট্টগ্রাম)",
+                scoutNote: "শারীরিকভাবে শক্তিশালী নাম্বার নাইন স্ট্রাইকার।",
+                attributes: { pace: 78, shooting: 80, passing: 69, dribbling: 74, defending: 45, physical: 84 }
+            },
+            {
+                id: 9,
+                name: "আরিয়ান খান (Aryan Khan)",
+                age: 23,
+                position: "GK",
+                specificPos: "GK",
+                club: "FC Edmonton Academy",
+                country: "Canada",
+                league: "League1 Alberta",
+                status: "Heritage",
+                rating: 76,
+                height: "1.89m",
+                foot: "Right",
+                appearances: 17,
+                goals: 0,
+                assists: 0,
+                votes: 410,
+                heritage: "কানাডিয়ান-বাংলাদেশি (কুমিল্লা)",
+                scoutNote: "লম্বা গড়ন ও দ্রুত রিফ্লেক্স সম্পন্ন গোলকিপার।",
+                attributes: { pace: 62, shooting: 55, passing: 75, dribbling: 64, defending: 79, physical: 80 }
+            }
+        ];
+
+        let playersData = [...defaultPlayers];
+        let currentLang = 'bn';
+        let currentUser = null;
+        let userSubmissions = [];
+        let dailyMatchReports = [];
+        let watchlist = new Set([1, 5]);
+        let radarChartInstance = null;
+        let activeLineupSlot = 'ST';
+        let lineupSlots = { 'LW': 7, 'ST': 8, 'RW': 5, 'LCM': 2, 'CDM': 1, 'RCM': 4, 'LB': 6, 'LCB': 3, 'RCB': 3, 'RB': 1, 'GK': 9 };
+
+        function saveState() {
+            try {
+                const state = {
+                    playersData,
+                    userSubmissions,
+                    dailyMatchReports,
+                    watchlist: Array.from(watchlist),
+                    lineupSlots
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (e) {}
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed.playersData) && parsed.playersData.length > 0) playersData = parsed.playersData;
+                    if (Array.isArray(parsed.userSubmissions)) userSubmissions = parsed.userSubmissions;
+                    if (Array.isArray(parsed.dailyMatchReports)) dailyMatchReports = parsed.dailyMatchReports;
+                    if (Array.isArray(parsed.watchlist)) watchlist = new Set(parsed.watchlist);
+                    if (parsed.lineupSlots) lineupSlots = parsed.lineupSlots;
+                }
+            } catch (e) {}
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'bn' ? 'en' : 'bn';
+            document.getElementById('langToggleLabel').innerText = currentLang === 'bn' ? 'EN' : 'বাংলা';
+            document.documentElement.lang = currentLang;
+            
+            const dict = i18n[currentLang];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) el.innerText = dict[key];
+            });
+
+            if (currentUser && currentUser.role !== 'ADMIN') {
+                renderPersonalDashboard();
+            }
+            showToast(currentLang === 'en' ? 'Language switched to English' : 'ভাষা বাংলায় পরিবর্তন করা হয়েছে');
+        }
+
+        function updateAccessView() {
+            const loginReq = document.getElementById('loginRequiredScreen');
+            const userDash = document.getElementById('userPersonalDashboard');
+            const dbView = document.getElementById('view-database');
+            const adminTabs = document.getElementById('desktopAdminTabs');
+            const mobileNavBar = document.getElementById('mobileNavBar');
+            const hero = document.getElementById('heroSection');
+
+            if (!currentUser) {
+                loginReq.classList.remove('hidden');
+                userDash.classList.add('hidden');
+                dbView.classList.add('hidden');
+                document.getElementById('view-lineup').classList.add('hidden');
+                document.getElementById('view-compare').classList.add('hidden');
+                adminTabs.classList.add('hidden');
+                mobileNavBar.classList.add('hidden');
+                hero.classList.remove('hidden');
+            } else if (currentUser.role === 'ADMIN') {
+                loginReq.classList.add('hidden');
+                userDash.classList.add('hidden');
+                dbView.classList.remove('hidden');
+                adminTabs.classList.remove('hidden');
+                mobileNavBar.classList.remove('hidden');
+                hero.classList.remove('hidden');
+                applyFilters();
+                renderAdminMatchFeed();
+                updateStats();
+            } else {
+                loginReq.classList.add('hidden');
+                userDash.classList.remove('hidden');
+                dbView.classList.add('hidden');
+                document.getElementById('view-lineup').classList.add('hidden');
+                document.getElementById('view-compare').classList.add('hidden');
+                adminTabs.classList.add('hidden');
+                mobileNavBar.classList.add('hidden');
+                hero.classList.add('hidden');
+                renderPersonalDashboard();
+            }
+        }
+
+        function applyFilters() {
+            const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+            const pos = document.getElementById('positionFilter')?.value || 'ALL';
+            const status = document.getElementById('eligibilityFilter')?.value || 'ALL';
+            const age = document.getElementById('ageFilter')?.value || 'ALL';
+            const sort = document.getElementById('sortFilter')?.value || 'rating';
+
+            let filtered = playersData.filter(p => {
+                const matchText = p.name.toLowerCase().includes(query) ||
+                                  p.club.toLowerCase().includes(query) ||
+                                  p.country.toLowerCase().includes(query) ||
+                                  p.heritage.toLowerCase().includes(query);
+                const matchPos = pos === 'ALL' || p.position === pos;
+                const matchStatus = status === 'ALL' || p.status === status;
+                let matchAge = true;
+                if (age === 'U20') matchAge = p.age <= 20;
+                else if (age === 'U23') matchAge = p.age <= 23;
+                else if (age === 'SENIOR') matchAge = p.age > 23;
+
+                const matchWatchlist = sort !== 'watchlist' || watchlist.has(p.id);
+                return matchText && matchPos && matchStatus && matchAge && matchWatchlist;
+            });
+
+            if (sort === 'rating') filtered.sort((a, b) => b.rating - a.rating);
+            else if (sort === 'age_asc') filtered.sort((a, b) => a.age - b.age);
+            else if (sort === 'goals') filtered.sort((a, b) => b.goals - a.goals);
+
+            renderPlayers(filtered);
+        }
+
+        function filterByQuickTag(tag) {
+            if (tag === 'Verified') {
+                document.getElementById('eligibilityFilter').value = 'Verified';
+                document.getElementById('ageFilter').value = 'ALL';
+            } else if (tag === 'U23') {
+                document.getElementById('ageFilter').value = 'U23';
+                document.getElementById('eligibilityFilter').value = 'ALL';
+            }
+            applyFilters();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('positionFilter').value = 'ALL';
+            document.getElementById('eligibilityFilter').value = 'ALL';
+            document.getElementById('ageFilter').value = 'ALL';
+            document.getElementById('sortFilter').value = 'rating';
+            applyFilters();
+        }
+
+        function renderAdminMatchFeed() {
+            const container = document.getElementById('adminMatchReportsList');
+            const badge = document.getElementById('totalMatchReportsBadge');
+            if (!container) return;
+
+            badge.innerText = `মোট রিপোর্ট: ${dailyMatchReports.length}`;
+            if (dailyMatchReports.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 col-span-full py-3">এখনো কোনো ম্যাচ রিপোর্ট জমা পড়েনি।</p>`;
+                return;
+            }
+
+            container.innerHTML = dailyMatchReports.map(r => `
+                <div class="bg-void border border-zinc-800 rounded-xl p-3 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <span class="text-xs font-bold text-white truncate">${r.playerName}</span>
+                            <span class="text-[10px] font-sans px-1.5 py-0.5 rounded bg-bdbGreen/15 text-bdbGreen shrink-0">${r.date}</span>
+                        </div>
+                        <div class="text-[11px] text-zinc-300 font-semibold">${r.fixture} • <span class="text-amber-400">${r.score}</span></div>
+                        <div class="flex items-center gap-3 text-[11px] text-zinc-400 mt-1.5">
+                            <span>⚽ গোল: <strong class="text-white">${r.goals}</strong></span>
+                            <span>🎯 অ্যাসিস্ট: <strong class="text-white">${r.assists}</strong></span>
+                            <span>⏱️ ${r.minutes}'</span>
+                        </div>
+                    </div>
+                    <div class="mt-2 pt-1.5 border-t border-zinc-900 flex items-center justify-between text-[10px] text-zinc-500">
+                        <span>আপলোড: ${r.submittedBy} (${r.role})</span>
+                        <button type="button" onclick="deleteMatchReport(${r.id})" class="text-bdbRed hover:underline cursor-pointer">মুছুন</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteMatchReport(id) {
+            dailyMatchReports = dailyMatchReports.filter(r => r.id !== id);
+            saveState();
+            renderAdminMatchFeed();
+            showToast('ম্যাচ রিপোর্ট মুছে ফেলা হয়েছে।');
+        }
+
+        function renderPersonalDashboard() {
+            const role = currentUser.role;
+            const dict = i18n[currentLang];
+            document.getElementById('userDashTitle').innerText = `${currentUser.name} - ${dict.dash_suffix}`;
+            document.getElementById('userDashRoleTag').innerText = role;
+
+            const myReports = dailyMatchReports.filter(r => r.submittedBy === currentUser.name);
+
+            const myListHTML = userSubmissions.length === 0
+                ? `<p class="text-xs text-zinc-500 py-4 text-center bg-void rounded-xl border border-zinc-900">${dict.no_submissions}</p>`
+                : userSubmissions.map(item => `
+                    <div class="p-3 rounded-xl bg-void border border-zinc-800 flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-bold text-white">${item.name}</div>
+                            <div class="text-[11px] text-zinc-400">${item.club} • ${item.position}</div>
+                        </div>
+                        <span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 text-[10px] font-semibold">${dict.review_badge}</span>
+                    </div>
+                `).join('');
+
+            const myMatchHistoryHTML = myReports.length === 0
+                ? `<p class="text-xs text-zinc-500 py-4 text-center bg-void rounded-xl border border-zinc-900">${dict.no_matches}</p>`
+                : myReports.map(m => `
+                    <div class="p-3 rounded-xl bg-void border border-zinc-800">
+                        <div class="flex justify-between items-center text-xs font-bold text-white">
+                            <span>${m.playerName} (${m.fixture})</span>
+                            <span class="text-bdbGreen font-sans">${m.date}</span>
+                        </div>
+                        <div class="text-[11px] text-zinc-400 mt-1">Score: <strong class="text-amber-400">${m.score}</strong> • G: ${m.goals}, A: ${m.assists} (${m.minutes}')</div>
+                    </div>
+                `).join('');
+
+            const dailyMatchCardHTML = (role === 'SCOUT' || role === 'PLAYER') ? `
+                <div class="bg-carbon border border-bdbGreen/40 rounded-2xl p-5 flex flex-col justify-between md:col-span-2">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-bdbGreen bg-bdbGreen/10 px-2.5 py-0.5 rounded-full mb-2">
+                                <i class="fa-solid fa-bolt"></i> ${dict.daily_badge} (${role})
+                            </div>
+                            <h3 class="text-base font-bold text-white">${dict.daily_title}</h3>
+                            <p class="text-xs text-zinc-400 mt-1">${dict.daily_desc}</p>
+                        </div>
+                        <button type="button" onclick="openMatchReportModal()" class="bg-bdbGreen hover:bg-emerald-400 text-black font-bold text-xs px-5 py-3 rounded-xl transition shrink-0 shadow-[0_0_20px_rgba(0,230,118,0.2)] cursor-pointer">
+                            <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> ${dict.daily_btn}
+                        </button>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-zinc-800">
+                        <div class="text-xs font-bold text-zinc-300 mb-2">${dict.my_matches_title} (${myReports.length})</div>
+                        <div class="space-y-2 max-h-44 overflow-y-auto">${myMatchHistoryHTML}</div>
+                    </div>
+                </div>
+            ` : `
+                <div class="bg-carbon border border-amber-500/30 rounded-2xl p-5 md:col-span-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full mb-2">
+                            <i class="fa-solid fa-star"></i> ${dict.fan_zone_badge}
+                        </div>
+                        <h3 class="text-base font-bold text-white">${dict.fan_zone_title}</h3>
+                        <p class="text-xs text-zinc-400 mt-1">${dict.fan_zone_desc}</p>
+                    </div>
+                    <div class="bg-void border border-zinc-800 px-4 py-2.5 rounded-xl text-center shrink-0">
+                        <div class="font-sans text-lg font-black text-amber-400">${userSubmissions.length}</div>
+                        <div class="text-[10px] text-zinc-500">${dict.fan_suggested_count}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('userWorkspaceContent').innerHTML = `
+                ${dailyMatchCardHTML}
+                <div class="bg-carbon border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold text-white mb-2"><i class="fa-solid fa-paper-plane text-bdbGreen mr-1.5"></i>${dict.submit_player_title}</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed mb-4">${dict.submit_player_desc}</p>
+                    </div>
+                    <button type="button" onclick="handleAddPlayerClick()" class="w-full bg-zinc-900 hover:bg-zinc-800 border border-bdbGreen/50 text-bdbGreen font-bold text-xs py-3 rounded-xl transition cursor-pointer">
+                        <i class="fa-solid fa-user-plus mr-1.5"></i> ${dict.submit_player_btn}
+                    </button>
+                </div>
+
+                <div class="bg-carbon border border-zinc-800 rounded-2xl p-5">
+                    <h3 class="text-sm font-bold text-white mb-3"><i class="fa-solid fa-clock-rotate-left text-sky-400 mr-1.5"></i>${dict.submitted_list_title} (${userSubmissions.length})</h3>
+                    <div class="space-y-2 max-h-52 overflow-y-auto">${myListHTML}</div>
+                </div>
+            `;
+        }
+
+        function openMatchReportModal() {
+            const dateInput = document.getElementById('mDate');
+            if (dateInput && !dateInput.value) {
+                dateInput.value = new Date().toISOString().split('T')[0];
+            }
+            document.getElementById('matchReportModal').classList.remove('hidden');
+        }
+
+        function updateStats() {
+            if (!currentUser || currentUser.role !== 'ADMIN') return;
+            document.getElementById('stat-total').innerText = playersData.length;
+            document.getElementById('stat-verified').innerText = playersData.filter(p => p.status === 'Verified').length;
+            document.getElementById('stat-u23').innerText = playersData.filter(p => p.age <= 23).length;
+            document.getElementById('stat-watchlist').innerText = watchlist.size;
+        }
+
+        function switchTab(tabName) {
+            if (!currentUser || currentUser.role !== 'ADMIN') return;
+            ['database', 'lineup', 'compare'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                const dBtn = document.getElementById(`nav-${t}`);
+                const mBtn = document.getElementById(`m-nav-${t}`);
+                if (dBtn) {
+                    dBtn.classList.remove('bg-zinc-800', 'text-bdbGreen');
+                    dBtn.classList.add('text-zinc-400');
+                }
+                if (mBtn) {
+                    mBtn.classList.remove('bg-zinc-900', 'text-bdbGreen');
+                    mBtn.classList.add('text-zinc-400');
+                }
+            });
+
+            document.getElementById(`view-${tabName}`).classList.remove('hidden');
+            const activeD = document.getElementById(`nav-${tabName}`);
+            const activeM = document.getElementById(`m-nav-${tabName}`);
+            if (activeD) {
+                activeD.classList.add('bg-zinc-800', 'text-bdbGreen');
+                activeD.classList.remove('text-zinc-400');
+            }
+            if (activeM) {
+                activeM.classList.add('bg-zinc-900', 'text-bdbGreen');
+                activeM.classList.remove('text-zinc-400');
+            }
+
+            if (tabName === 'compare') {
+                populateCompareDropdowns();
+                renderComparison();
+            }
+            if (tabName === 'lineup') {
+                renderLineupPitch();
+                renderLineupPool();
+            }
+        }
+
+        function openAuthModal() {
+            document.getElementById('authModal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function attemptRoleLogin(role, defaultTitle) {
+            const customName = document.getElementById('loginUserNameInput').value.trim();
+            const pin = document.getElementById('adminPinInput').value.trim();
+
+            if (role === 'ADMIN' && pin !== '1234') {
+                showToast('ভুল অ্যাডমিন পিন! অ্যাডমিন লগইনের জন্য 1234 দিন।');
+                return;
+            }
+
+            const finalName = customName || defaultTitle;
+            loginAsRole(role, finalName);
+        }
+
+        function loginAsRole(role, name) {
+            currentUser = { role, name };
+            document.getElementById('currentAccountLabel').innerText = `${name} (${role})`;
+            document.getElementById('roleBanner').classList.remove('hidden');
+            document.getElementById('roleBadgeText').innerText = role;
+            document.getElementById('roleWelcomeText').innerText = `${name} (${role}) হিসেবে সফলভাবে প্রবেশ করেছেন।`;
+            
+            closeModal('authModal');
+            updateAccessView();
+            showToast(`${name} হিসেবে লগইন সফল হয়েছে!`);
+        }
+
+        function logoutAccount() {
+            currentUser = null;
+            document.getElementById('currentAccountLabel').innerText = i18n[currentLang].nav_login;
+            document.getElementById('roleBanner').classList.add('hidden');
+            updateAccessView();
+            showToast('লগআউট করা হয়েছে।');
+        }
+
+        function handleAddPlayerClick() {
+            if (!currentUser) {
+                openAuthModal();
+                showToast('প্রথমে আপনার অ্যাকাউন্টে লগইন করুন।');
+                return;
+            }
+            document.getElementById('submitModal').classList.remove('hidden');
+        }
+
+        function renderPlayers(list) {
+            const grid = document.getElementById('playersGrid');
+            const empty = document.getElementById('emptyState');
+            document.getElementById('resultCount').innerText = list.length;
+            grid.innerHTML = '';
+
+            if (list.length === 0) {
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            list.forEach(p => {
+                const isWatched = watchlist.has(p.id);
+                const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name.split('(')[0])}&background=09090b&color=00e676&size=128&bold=true`;
+                
+                const statusColors = {
+                    'Verified': 'bg-bdbGreen/10 text-bdbGreen border-bdbGreen/30',
+                    'In Process': 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+                    'Heritage': 'bg-sky-500/10 text-sky-400 border-sky-500/30'
+                };
+
+                const card = document.createElement('div');
+                card.className = "bg-obsidian border border-borderDark hover:border-bdbGreen/60 rounded-2xl p-5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden";
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2">
+                                <span class="font-sans text-xs font-black px-2.5 py-0.5 rounded-md bg-zinc-900 text-bdbGreen border border-zinc-700">${p.position}</span>
+                                <span class="text-xs text-zinc-400 font-sans">${p.specificPos}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${statusColors[p.status] || statusColors['Heritage']}">${p.status}</span>
+                                <button type="button" onclick="toggleWatchlist(event, ${p.id})" class="w-7 h-7 rounded-lg bg-zinc-900 hover:bg-zinc-800 flex items-center justify-center transition cursor-pointer ${isWatched ? 'text-amber-400' : 'text-zinc-500'}">
+                                    <i class="fa-${isWatched ? 'solid' : 'regular'} fa-star text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 mb-4 cursor-pointer" onclick="openPlayerReport(${p.id})">
+                            <div class="relative shrink-0">
+                                <img src="${avatar}" alt="${p.name}" class="w-16 h-16 rounded-2xl border border-zinc-800 group-hover:border-bdbGreen transition object-cover">
+                                <div class="absolute -bottom-2 -right-2 bg-void border border-bdbGreen text-bdbGreen font-sans font-black text-xs px-2 py-0.5 rounded-lg">${p.rating}</div>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white group-hover:text-bdbGreen transition truncate">${p.name}</h3>
+                                <p class="text-xs text-zinc-300 mt-0.5 truncate"><i class="fa-solid fa-shield-halved text-bdbGreen mr-1"></i>${p.club}</p>
+                                <p class="text-[11px] text-zinc-500 mt-0.5 truncate"><i class="fa-solid fa-globe mr-1"></i>${p.country} • বয়স: ${p.age}</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-4 gap-1.5 bg-void border border-zinc-900 rounded-xl p-2.5 text-center mb-4">
+                            <div>
+                                <div class="font-sans font-bold text-xs text-white">${p.appearances}</div>
+                                <div class="text-[10px] text-zinc-500">ম্যাচ</div>
+                            </div>
+                            <div class="border-l border-zinc-900">
+                                <div class="font-sans font-bold text-xs text-bdbGreen">${p.goals}</div>
+                                <div class="text-[10px] text-zinc-500">গোল</div>
+                            </div>
+                            <div class="border-l border-zinc-900">
+                                <div class="font-sans font-bold text-xs text-sky-400">${p.assists}</div>
+                                <div class="text-[10px] text-zinc-500">অ্যাসিস্ট</div>
+                            </div>
+                            <div class="border-l border-zinc-900">
+                                <div class="font-sans font-bold text-xs text-amber-400">${p.votes}</div>
+                                <div class="text-[10px] text-zinc-500">ভোট</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-zinc-900 flex items-center justify-between gap-2">
+                        <button type="button" onclick="openPlayerReport(${p.id})" class="text-xs text-bdbGreen font-semibold hover:underline flex items-center gap-1 cursor-pointer">
+                            স্কাউট রিপোর্ট <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="cycleStatus(${p.id})" class="text-[11px] bg-amber-500/20 text-amber-400 px-2 py-1 rounded-lg cursor-pointer">স্ট্যাটাস</button>
+                            <button type="button" onclick="deletePlayer(${p.id})" class="text-[11px] bg-bdbRed/20 text-bdbRed px-2 py-1 rounded-lg cursor-pointer"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleWatchlist(e, id) {
+            e.stopPropagation();
+            if (watchlist.has(id)) watchlist.delete(id);
+            else watchlist.add(id);
+            saveState();
+            updateStats();
+            applyFilters();
+            showToast('ওয়াচলিস্ট আপডেট হয়েছে!');
+        }
+
+        function cycleStatus(id) {
+            const p = playersData.find(x => x.id === id);
+            if (!p) return;
+            const order = ['Verified', 'In Process', 'Heritage'];
+            p.status = order[(order.indexOf(p.status) + 1) % order.length];
+            saveState();
+            updateStats();
+            applyFilters();
+            showToast(`স্ট্যাটাস পরিবর্তন করে "${p.status}" করা হয়েছে।`);
+        }
+
+        function deletePlayer(id) {
+            playersData = playersData.filter(x => x.id !== id);
+            saveState();
+            updateStats();
+            applyFilters();
+            showToast('প্লেয়ার মুছে ফেলা হয়েছে।');
+        }
+
+        function openPlayerReport(id) {
+            const p = playersData.find(x => x.id === id);
+            if (!p) return;
+            const modal = document.getElementById('playerModal');
+            const content = document.getElementById('modalContent');
+            const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name.split('(')[0])}&background=000000&color=00e676&size=128&bold=true`;
+
+            content.innerHTML = `
+                <div class="bg-carbon p-6 border-b border-zinc-800 relative">
+                    <button type="button" onclick="closeModal('playerModal')" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-void border border-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center cursor-pointer">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <div class="flex flex-col sm:flex-row items-center gap-5">
+                        <img src="${avatar}" class="w-20 h-20 rounded-2xl border-2 border-bdbGreen">
+                        <div class="text-center sm:text-left">
+                            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
+                                <span class="px-2.5 py-0.5 rounded bg-bdbGreen text-black font-sans font-black text-xs">${p.specificPos}</span>
+                                <span class="px-2.5 py-0.5 rounded bg-void border border-zinc-700 text-zinc-300 text-xs">${p.status}</span>
+                                <span class="px-2.5 py-0.5 rounded bg-void border border-zinc-700 text-bdbGreen font-sans font-bold text-xs">OVR ${p.rating}</span>
+                            </div>
+                            <h2 class="text-2xl font-bold text-white">${p.name}</h2>
+                            <p class="text-sm text-zinc-400">${p.club} • <span class="text-bdbGreen">${p.league}</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <div class="bg-void border border-zinc-900 rounded-2xl p-4">
+                        <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 text-center">টেকনিক্যাল প্রোফাইল রাডার</h4>
+                        <div class="chart-container">
+                            <canvas id="playerRadarCanvas"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-void border border-zinc-900 p-2.5 rounded-xl">
+                                <span class="text-[11px] text-zinc-500 block">বয়স</span>
+                                <span class="font-bold text-sm text-white">${p.age} বছর</span>
+                            </div>
+                            <div class="bg-void border border-zinc-900 p-2.5 rounded-xl">
+                                <span class="text-[11px] text-zinc-500 block">উচ্চতা</span>
+                                <span class="font-sans font-bold text-sm text-white">${p.height}</span>
+                            </div>
+                            <div class="bg-void border border-zinc-900 p-2.5 rounded-xl">
+                                <span class="text-[11px] text-zinc-500 block">পা</span>
+                                <span class="font-sans font-bold text-sm text-white">${p.foot}</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-void border border-zinc-800 rounded-xl p-3.5">
+                            <div class="text-xs font-bold text-bdbGreen mb-1"><i class="fa-solid fa-passport mr-1.5"></i>বংশপরিচয়</div>
+                            <p class="text-xs text-zinc-300">${p.heritage}</p>
+                        </div>
+
+                        <div class="bg-void border border-bdbGreen/30 rounded-xl p-3.5">
+                            <div class="text-xs font-bold text-white mb-1"><i class="fa-solid fa-clipboard-check text-bdbGreen mr-1.5"></i>স্কাউট নোট</div>
+                            <p class="text-xs text-zinc-400 leading-relaxed">${p.scoutNote}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+
+            setTimeout(() => {
+                const canvasEl = document.getElementById('playerRadarCanvas');
+                if (!canvasEl || typeof Chart === 'undefined') return;
+                const ctx = canvasEl.getContext('2d');
+                if (radarChartInstance) radarChartInstance.destroy();
+                radarChartInstance = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Pace', 'Shooting', 'Passing', 'Dribbling', 'Defending', 'Physical'],
+                        datasets: [{
+                            label: p.name.split('(')[0],
+                            data: [p.attributes.pace, p.attributes.shooting, p.attributes.passing, p.attributes.dribbling, p.attributes.defending, p.attributes.physical],
+                            backgroundColor: 'rgba(0, 230, 118, 0.2)',
+                            borderColor: '#00e676',
+                            pointBackgroundColor: '#00e676',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                min: 30, max: 100,
+                                ticks: { display: false },
+                                grid: { color: '#27272a' },
+                                angleLines: { color: '#27272a' },
+                                pointLabels: { color: '#a1a1aa', font: { size: 11 } }
+                            }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }, 60);
+        }
+
+        function renderLineupPitch() {
+            const createSlotHTML = (slot) => {
+                const player = playersData.find(p => p.id === lineupSlots[slot]) || playersData[0];
+                const isSelected = activeLineupSlot === slot;
+                return `
+                    <div onclick="selectLineupSlot('${slot}')" class="cursor-pointer flex flex-col items-center group">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-void border-2 ${isSelected ? 'border-bdbGreen shadow-[0_0_15px_#00e676]' : 'border-zinc-700'} flex flex-col items-center justify-center transition">
+                            <span class="font-sans text-[10px] font-bold text-bdbGreen">${slot}</span>
+                            <span class="font-sans text-xs font-black text-white">${player.rating}</span>
+                        </div>
+                        <span class="mt-1 px-2 py-0.5 rounded bg-black/80 text-[10px] sm:text-xs font-semibold text-white truncate max-w-[90px] border border-zinc-800">
+                            ${player.name.split(' ')[0]}
+                        </span>
+                    </div>
+                `;
+            };
+
+            document.getElementById('pitch-fw').innerHTML = ['LW', 'ST', 'RW'].map(createSlotHTML).join('');
+            document.getElementById('pitch-mf').innerHTML = ['LCM', 'CDM', 'RCM'].map(createSlotHTML).join('');
+            document.getElementById('pitch-df').innerHTML = ['LB', 'LCB', 'RCB', 'RB'].map(createSlotHTML).join('');
+            document.getElementById('pitch-gk').innerHTML = createSlotHTML('GK');
+
+            const ratings = Object.values(lineupSlots).map(id => (playersData.find(p => p.id === id) || playersData[0]).rating);
+            const avg = (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1);
+            document.getElementById('teamAvgRating').innerText = avg;
+        }
+
+        function selectLineupSlot(slot) {
+            activeLineupSlot = slot;
+            document.getElementById('selectedSlotBadge').innerText = slot;
+            renderLineupPitch();
+            renderLineupPool();
+        }
+
+        function renderLineupPool() {
+            const pool = document.getElementById('lineupPlayerPool');
+            pool.innerHTML = playersData.map(p => `
+                <div onclick="assignPlayerToSlot(${p.id})" class="p-2.5 rounded-xl bg-void hover:bg-zinc-900 border border-zinc-800 cursor-pointer flex items-center justify-between transition">
+                    <div>
+                        <div class="text-xs font-bold text-white">${p.name.split('(')[0]}</div>
+                        <div class="text-[10px] text-zinc-500">${p.specificPos} • ${p.club}</div>
+                    </div>
+                    <span class="font-sans text-xs font-black text-bdbGreen bg-zinc-900 px-2 py-1 rounded-lg">${p.rating}</span>
+                </div>
+            `).join('');
+        }
+
+        function assignPlayerToSlot(playerId) {
+            lineupSlots[activeLineupSlot] = playerId;
+            saveState();
+            renderLineupPitch();
+            showToast(`${activeLineupSlot} পজিশনে প্লেয়ার বসানো হয়েছে!`);
+        }
+
+        function autoFillBestXI() {
+            const sorted = [...playersData].sort((a, b) => b.rating - a.rating);
+            const keys = Object.keys(lineupSlots);
+            keys.forEach((k, idx) => { lineupSlots[k] = sorted[idx % sorted.length].id; });
+            saveState();
+            renderLineupPitch();
+            showToast('সেরা একাদশ সাজানো হয়েছে!');
+        }
+
+        function populateCompareDropdowns() {
+            const s1 = document.getElementById('compareSelect1');
+            const s2 = document.getElementById('compareSelect2');
+            const options = playersData.map(p => `<option value="${p.id}">${p.name} (${p.club})</option>`).join('');
+            s1.innerHTML = options;
+            s2.innerHTML = options;
+            if (playersData.length > 1) s2.selectedIndex = 1;
+        }
+
+        function renderComparison() {
+            const p1 = playersData.find(p => p.id == document.getElementById('compareSelect1').value);
+            const p2 = playersData.find(p => p.id == document.getElementById('compareSelect2').value);
+            if (!p1 || !p2) return;
+
+            const stats = [
+                { label: 'স্কাউট রেটিং (OVR)', v1: p1.rating, v2: p2.rating },
+                { label: 'গতি (Pace)', v1: p1.attributes.pace, v2: p2.attributes.pace },
+                { label: 'পাসিং (Passing)', v1: p1.attributes.passing, v2: p2.attributes.passing },
+                { label: 'ড্রিবলিং (Dribbling)', v1: p1.attributes.dribbling, v2: p2.attributes.dribbling },
+                { label: 'ডিফেন্ডিং (Defending)', v1: p1.attributes.defending, v2: p2.attributes.defending },
+                { label: 'শারীরিক (Physical)', v1: p1.attributes.physical, v2: p2.attributes.physical }
+            ];
+
+            document.getElementById('comparisonResult').innerHTML = `
+                <div class="grid grid-cols-3 items-center text-center pb-6 border-b border-zinc-800 mb-6">
+                    <div>
+                        <div class="text-base font-bold text-white">${p1.name.split('(')[0]}</div>
+                        <div class="text-xs text-bdbGreen">${p1.club}</div>
+                    </div>
+                    <div class="font-sans font-black text-zinc-600 text-xl">VS</div>
+                    <div>
+                        <div class="text-base font-bold text-white">${p2.name.split('(')[0]}</div>
+                        <div class="text-xs text-sky-400">${p2.club}</div>
+                    </div>
+                </div>
+                <div class="space-y-4 max-w-2xl mx-auto">
+                    ${stats.map(s => `
+                        <div>
+                            <div class="flex justify-between text-xs font-sans font-bold mb-1">
+                                <span class="${s.v1 >= s.v2 ? 'text-bdbGreen' : 'text-zinc-400'}">${s.v1}</span>
+                                <span class="text-zinc-300 font-bengali">${s.label}</span>
+                                <span class="${s.v2 >= s.v1 ? 'text-sky-400' : 'text-zinc-400'}">${s.v2}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-1.5 h-2">
+                                <div class="bg-void rounded-l-full flex justify-end overflow-hidden">
+                                    <div class="bg-bdbGreen h-full" style="width: ${s.v1}%"></div>
+                                </div>
+                                <div class="bg-void rounded-r-full overflow-hidden">
+                                    <div class="bg-sky-400 h-full" style="width: ${s.v2}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadState();
+            updateAccessView();
+            populateCompareDropdowns();
+
+            document.getElementById('addPlayerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const newPlayer = {
+                    id: Date.now(),
+                    name: document.getElementById('pName').value.trim(),
+                    age: parseInt(document.getElementById('pAge').value) || 20,
+                    position: document.getElementById('pPosition').value,
+                    specificPos: document.getElementById('pSpecPos').value.trim() || document.getElementById('pPosition').value,
+                    club: document.getElementById('pClub').value.trim(),
+                    country: document.getElementById('pCountry').value.trim(),
+                    league: document.getElementById('pCountry').value.trim(),
+                    status: document.getElementById('pStatus').value,
+                    rating: 79,
+                    height: "1.80m",
+                    foot: "Right",
+                    appearances: 15,
+                    goals: 3,
+                    assists: 2,
+                    votes: 1,
+                    heritage: document.getElementById('pHeritage').value.trim() || "প্রবাসী বাংলাদেশি",
+                    scoutNote: document.getElementById('pNotes').value.trim() || "নতুন প্রস্পেক্ট প্লেয়ার।",
+                    attributes: { pace: 80, shooting: 74, passing: 77, dribbling: 79, defending: 70, physical: 76 }
+                };
+
+                playersData.unshift(newPlayer);
+                if (currentUser && currentUser.role !== 'ADMIN') {
+                    userSubmissions.unshift(newPlayer);
+                }
+                saveState();
+                updateAccessView();
+                populateCompareDropdowns();
+                closeModal('submitModal');
+                this.reset();
+                showToast('প্লেয়ার সফলভাবে যুক্ত হয়েছে!');
+            });
+
+            document.getElementById('dailyMatchForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (!currentUser) return;
+
+                const report = {
+                    id: Date.now(),
+                    playerName: document.getElementById('mPlayerName').value.trim(),
+                    date: document.getElementById('mDate').value,
+                    fixture: document.getElementById('mFixture').value.trim(),
+                    score: document.getElementById('mScore').value.trim(),
+                    goals: parseInt(document.getElementById('mGoals').value) || 0,
+                    assists: parseInt(document.getElementById('mAssists').value) || 0,
+                    minutes: parseInt(document.getElementById('mMinutes').value) || 90,
+                    notes: document.getElementById('mNotes').value.trim(),
+                    submittedBy: currentUser.name,
+                    role: currentUser.role
+                };
+
+                dailyMatchReports.unshift(report);
+                saveState();
+                closeModal('matchReportModal');
+                this.reset();
+                updateAccessView();
+                showToast('ম্যাচ রিপোর্ট সফলভাবে জমা হয়েছে!');
+            });
+        });
+    </script>
+</body>
+</html>
